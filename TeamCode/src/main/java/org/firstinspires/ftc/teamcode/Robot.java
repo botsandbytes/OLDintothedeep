@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
-import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
-
 import android.util.Log;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -13,7 +10,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -33,6 +29,7 @@ public class Robot extends Thread {
 
     //private static final int TICKS_PER_ROTATION = 1440; //Tetrix motor specific
     private static final double TICKS_PER_ROTATION = 537.7; //Gobilda 5203 312 RMP motor specific
+    private static final double ARM_TICKS_PER_ROTATION = 145.1;
     private static final double WHEEL_DIAMETER = 3.78; //Wheel diameter in inches
     private static final double LA_EXPAND_POWER =  0.80 ; // Run actuator motor up at 80% power
     private static final double LA_CONTRACT_POWER  = -0.80 ; // Run actuator motor down at -80% power
@@ -42,7 +39,9 @@ public class Robot extends Thread {
     private DcMotorEx Motor_FR;
     private DcMotorEx Motor_BR;
     private DcMotorEx Motor_BL;
-    private DcMotorEx Motor_LA;
+    private DcMotorEx Motor_VSL, Motor_VSR;
+    private DcMotorEx Motor_WBL;
+    private DcMotorEx Motor_WBR;
     private Servo planePusher, armServo, clawServo;
    // private CRServo clawServo;
     //private Servo armServo;
@@ -99,11 +98,14 @@ public class Robot extends Thread {
         Motor_FR = hardwareMap.get(DcMotorEx.class, "motor_fr");
         Motor_BR = hardwareMap.get(DcMotorEx.class, "motor_br");
         Motor_BL = hardwareMap.get(DcMotorEx.class, "motor_bl");
-        Motor_LA = hardwareMap.get(DcMotorEx.class, "LinearActuator");
+        Motor_VSL = hardwareMap.get(DcMotorEx.class, "vs_l");
+        Motor_VSR = hardwareMap.get(DcMotorEx.class, "vs_r");
+        Motor_WBL = hardwareMap.get(DcMotorEx.class, "wb_l");
+        Motor_WBR = hardwareMap.get(DcMotorEx.class, "wb_r");
 
-        planePusher = hardwareMap.get(Servo.class, "planePusher");
-        clawServo   = hardwareMap.get(Servo.class, "clawServo");
-        armServo    = hardwareMap.get(Servo.class, "armServo");
+        //planePusher = hardwareMap.get(Servo.class, "planePusher");
+        //clawServo   = hardwareMap.get(Servo.class, "clawServo");
+        //armServo    = hardwareMap.get(Servo.class, "armServo");
        /*Motor_FR.setVelocityPIDFCoefficients(0.95, 0.095, 0, 9.5);
         Motor_FR.setPositionPIDFCoefficients(5.0);
 
@@ -144,13 +146,18 @@ public class Robot extends Thread {
         Motor_BL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Motor_BR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        BNO055IMU.Parameters parametersIMU = new BNO055IMU.Parameters();
-        parametersIMU.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parametersIMU.calibrationDataFile = "BNO055IMUCalibration.json";
-        parametersIMU.loggingEnabled = false;
+        Motor_VSL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_VSR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_WBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_WBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-        imu.initialize(parametersIMU);
+//        BNO055IMU.Parameters parametersIMU = new BNO055IMU.Parameters();
+//        parametersIMU.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+//        parametersIMU.calibrationDataFile = "BNO055IMUCalibration.json";
+//        parametersIMU.loggingEnabled = false;
+//
+//        imu = hardwareMap.get(BNO055IMU.class, "imu");
+//        imu.initialize(parametersIMU);
 
         // Set PID proportional value to start reducing power at about 50 degrees of rotation.
         // P by itself may stall before turn completed so we add a bit of I (integral) which
@@ -1036,19 +1043,19 @@ public class Robot extends Thread {
     }
 
     public void pixGrip () {
-//        armServo.setPosition(0.2);
-//        try {
-//            sleep(200);
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
-//        clawServo.setPosition(0.1);
-//        try {
-//            sleep(100);
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
-//        clawServo.setPosition(0);
+        armServo.setPosition(0.2);
+        try {
+            sleep(200);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        clawServo.setPosition(0.1);
+        try {
+            sleep(100);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        clawServo.setPosition(0);
 
     }
 
@@ -1079,18 +1086,37 @@ public class Robot extends Thread {
         moveBackwardToPosition(1,5);
     }
 
-    public void expandLinearActuator () {
-        Motor_LA.setPower(LA_EXPAND_POWER);
-        Log.i(TAG, "Linear Actuator Expanding");
+    public void expandSlide () {
+        Motor_VSL.setPower(LA_EXPAND_POWER);
+        Motor_VSR.setPower(LA_EXPAND_POWER);
+        Log.i(TAG, "Slide Expanding");
     }
 
-    public void contractLinearActuator () {
-        Motor_LA.setPower(LA_CONTRACT_POWER);
-        Log.i(TAG, "Linear Actuator Contracting");
+    public void contractSlide () {
+        Motor_VSL.setPower(LA_CONTRACT_POWER);
+        Motor_VSR.setPower(LA_CONTRACT_POWER);
+        Log.i(TAG, "Slide Contracting");
     }
 
-    public void stopLinearActuator () {
-        Motor_LA.setPower(0.0);
-        Log.i(TAG, "Linear Actuator Stopped");
+    public void stopSlide() {
+        Motor_VSL.setPower(0.0);
+        Motor_VSR.setPower(0.0);
+        Log.i(TAG, "Slide Stopped");
+    }
+
+    public void turnClaw() {
+        Motor_WBL.setPower(1);
+        Motor_WBR.setPower(1);
+
+    }
+    public void turnClawBack() {
+        Motor_WBL.setPower(-1);
+        Motor_WBR.setPower(-1);
+    }
+    public void clawStop() {
+        Motor_WBL.setPower(0.0);
+        Motor_WBR.setPower(0.0);
+
+        Motor_WBL.setTargetPosition(80);
     }
 }

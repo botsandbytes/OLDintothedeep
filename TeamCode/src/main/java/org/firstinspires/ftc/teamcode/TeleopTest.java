@@ -117,12 +117,12 @@ public class TeleopTest extends LinearOpMode {
                 robot.armPark();
             }
 
-            if (this.gamepad1.dpad_up == true) {
-                robot.armDown();
-            } //else
-            if (this.gamepad1.dpad_down == true) {
-                robot.armUp();
-            }
+//            if (this.gamepad1.dpad_up == true) {
+//                robot.armDown();
+//            } //else
+//            if (this.gamepad1.dpad_down == true) {
+//                robot.armUp();
+//            }
 //            else {
 //                robot.armOff();
 //            }
@@ -133,36 +133,45 @@ public class TeleopTest extends LinearOpMode {
 
             // Use gamepad buttons to move the linear actuator
             // expand (Left Bumper) and contracts (Right Bumper)
-            if (this.gamepad2.left_bumper) {
-                robot.expandLinearActuator();
-            } else if (this.gamepad2.right_bumper) {
-                robot.contractLinearActuator();
+            if (this.gamepad1.left_bumper) {
+                 robot.expandSlide();
+            } else if (this.gamepad1.right_bumper) {
+                 robot.contractSlide();
             } else {
-                robot.stopLinearActuator();
+                 robot.stopSlide();
             }
 
             if (this.gamepad2.x == true) {
-                robot.pushPlane();
+                // robot.pushPlane();
+            }
+            if (this.gamepad1.dpad_up == true) {
+                robot.turnClaw();
+            }
+            if (this.gamepad1.dpad_down == true) {
+                robot.turnClawBack();
+            }
+            if (this.gamepad1.dpad_up == false && this.gamepad1.dpad_down == false) {
+                robot.clawStop();
             }
             /* Claw/Arm controls */
 
-            if (this.gamepad2.dpad_up == true) {
-                robot.clawSlowOpen();
-            } //else
-            if (this.gamepad2.dpad_down == true) {
-                robot.clawSlowClose();
-            }
-
-            if (this.gamepad2.b == true) {
-                robot.pixRelease();
-            }
-            if (this.gamepad2.a == true) {
-                robot.pixGrab();
-            }
-
-            if (this.gamepad2.left_stick_button == true) {
-                robot.pixGrip();
-            }
+//            if (this.gamepad2.dpad_up == true) {
+//                robot.clawSlowOpen();
+//            } //else
+//            if (this.gamepad2.dpad_down == true) {
+//                robot.clawSlowClose();
+//            }
+//
+//            if (this.gamepad2.b == true) {
+//                robot.pixRelease();
+//            }
+//            if (this.gamepad2.a == true) {
+//                robot.pixGrab();
+//            }
+//
+//            if (this.gamepad2.left_stick_button == true) {
+//                robot.pixGrip();
+//            }
         };
     };
 }
