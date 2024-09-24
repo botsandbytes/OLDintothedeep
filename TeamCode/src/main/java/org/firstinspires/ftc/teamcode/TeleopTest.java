@@ -145,10 +145,10 @@ public class TeleopTest extends LinearOpMode {
                 // robot.pushPlane();
             }
             if (this.gamepad1.dpad_up == true) {
-                robot.turnClaw();
+                robot.turnSlide();
             }
             if (this.gamepad1.dpad_down == true) {
-                robot.turnClawBack();
+                robot.turnSlideBack();
             }
             if (this.gamepad1.dpad_up == false && this.gamepad1.dpad_down == false) {
                 robot.clawStop();

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static java.lang.Math.abs;
+
 import android.util.Log;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -29,10 +31,17 @@ public class Robot extends Thread {
 
     //private static final int TICKS_PER_ROTATION = 1440; //Tetrix motor specific
     private static final double TICKS_PER_ROTATION = 537.7; //Gobilda 5203 312 RMP motor specific
-    private static final double ARM_TICKS_PER_ROTATION = 145.1;
+
     private static final double WHEEL_DIAMETER = 3.78; //Wheel diameter in inches
     private static final double LA_EXPAND_POWER =  0.80 ; // Run actuator motor up at 80% power
     private static final double LA_CONTRACT_POWER  = -0.80 ; // Run actuator motor down at -80% power
+
+    static final double DRIVE_GEAR_REDUCTION = 1.0;     // No External Gearing.
+    private static final double ARM_TICKS_PER_ROTATION = 145.1;
+    private static final double ARM_WHEEL_DIAMETER = 1; //Wheel diameter in inches
+    static final double ARM_COUNTS_PER_INCH = (ARM_TICKS_PER_ROTATION * DRIVE_GEAR_REDUCTION) /
+            (ARM_WHEEL_DIAMETER * 3.1415);
+
     private String TAG = "FTC";
 
     private DcMotorEx Motor_FL;
@@ -222,10 +231,10 @@ public class Robot extends Thread {
 
 
     boolean drivetrainBusy(int ticks) {
-        int avg = (Math.abs(Motor_FL.getCurrentPosition())
-                + Math.abs(Motor_FR.getCurrentPosition())
-                + Math.abs(Motor_BL.getCurrentPosition())
-                + Math.abs(Motor_BR.getCurrentPosition())) / 4;
+        int avg = (abs(Motor_FL.getCurrentPosition())
+                + abs(Motor_FR.getCurrentPosition())
+                + abs(Motor_BL.getCurrentPosition())
+                + abs(Motor_BR.getCurrentPosition())) / 4;
         if ((avg >= (ticks - tollerance)) || (avg <= (ticks + tollerance))) {
             return false;
         }
@@ -359,8 +368,8 @@ public class Robot extends Thread {
             }
             if (DEBUG_DEBUG) {
                 Log.i(TAG, "Actual Ticks Motor0 : " + Motor_FL.getCurrentPosition());
-                Log.i(TAG, "Actual Ticks Motor1 : " + Motor_FR.getCurrentPosition());
                 Log.i(TAG, "Actual Ticks Motor2 : " + Motor_BR.getCurrentPosition());
+                Log.i(TAG, "Actual Ticks Motor1 : " + Motor_FR.getCurrentPosition());
                 Log.i(TAG, "Actual Ticks Motor3 : " + Motor_BL.getCurrentPosition());
             }
             //Waiting for Robot to travel the distance
@@ -782,7 +791,7 @@ public class Robot extends Thread {
         resetAngle();
 
         // if degrees > 359 we cap at 359 with same sign as original degrees.
-        if (Math.abs(degrees) > 359) degrees = (int) Math.copySign(359, degrees);
+        if (abs(degrees) > 359) degrees = (int) Math.copySign(359, degrees);
 
         // start pid controller. PID controller will monitor the turn angle with respect to the
         // target angle and reduce power as we approach the target angle. This is to prevent the
@@ -1087,9 +1096,10 @@ public class Robot extends Thread {
     }
 
     public void expandSlide () {
-        Motor_VSL.setPower(LA_EXPAND_POWER);
-        Motor_VSR.setPower(LA_EXPAND_POWER);
+//        Motor_VSL.setPower(LA_EXPAND_POWER);
+//        Motor_VSR.setPower(LA_EXPAND_POWER);
         Log.i(TAG, "Slide Expanding");
+        moveDCMotorByDistance(Motor_VSL, Motor_VSR,0.5,1,500);
     }
 
     public void contractSlide () {
@@ -1104,19 +1114,73 @@ public class Robot extends Thread {
         Log.i(TAG, "Slide Stopped");
     }
 
-    public void turnClaw() {
-        Motor_WBL.setPower(1);
-        Motor_WBR.setPower(1);
+    public void turnSlide() {
+        moveDCMotorByDistance(Motor_WBL, Motor_WBR,0.5,1,500);
+//        Motor_WBL.setPower(1);
+//        Motor_WBR.setPower(1);
 
     }
-    public void turnClawBack() {
-        Motor_WBL.setPower(-1);
-        Motor_WBR.setPower(-1);
+    public void turnSlideBack() {
+        moveDCMotorByDistance(Motor_WBL, Motor_WBR,0.5,-11,500);
+//        Motor_WBL.setPower(-1);
+//        Motor_WBR.setPower(-1);
     }
     public void clawStop() {
         Motor_WBL.setPower(0.0);
         Motor_WBR.setPower(0.0);
+        //Motor_WBL.setTargetPosition(80);
+    }
 
-        Motor_WBL.setTargetPosition(80);
+    private void moveDCMotorByDistance(DcMotorEx leftMotor,DcMotorEx rightMotor, double speed, double moveDistance, double timeoutS)
+    {
+        // make motor run using encoder
+        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+         // Send telemetry message to indicate the current and new location
+        double moveTarget =  moveDistance * ARM_COUNTS_PER_INCH;
+        telemetry.addData("Starting at", "%7d and moving to %7d", leftMotor.getCurrentPosition(), moveTarget);
+        telemetry.update();
+        try {
+            sleep(250);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //move to new target position
+        leftMotor.setTargetPosition((int)moveTarget);
+        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightMotor.setTargetPosition((int)moveTarget);
+        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // reset the timeout time and start motion.
+        runtime.reset();
+        leftMotor.setPower(abs(speed));
+        rightMotor.setPower(abs(speed));
+
+        // sleep
+        while ((runtime.seconds() < timeoutS) && leftMotor.isBusy()) {
+            // Display it for the driver.
+            telemetry.addData("Running to", " %7d", moveTarget);
+            telemetry.addData("Currently at", " at %7d ",
+                    leftMotor.getCurrentPosition());
+            telemetry.update();
+            //sleep(500);   // optional pause after each move.
+        }
+
+        // Stop all motion;
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+        // Turn off RUN_TO_POSITION
+        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        try {
+            sleep(150);   // optional pause after each move.
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 }
