@@ -1,15 +1,14 @@
 package org.firstinspires.ftc.teamcode;
-//Fix if detecting 2 or 0 minerals
-//Give Power to Servo Motor holder
-//Buttons to move latch and slide
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp
 public class TeleopTest extends LinearOpMode {
+    private final double robot_power = 1.0;
 
     @Override
     public void runOpMode()  {
+
         Robot robot = new Robot(hardwareMap, telemetry);
         robot.isTeleOp = true;
 
@@ -29,11 +28,10 @@ public class TeleopTest extends LinearOpMode {
                 robot.turnOff();
             }
             if (this.gamepad1.right_stick_x > 0.5) {
-                robot.turnForTime(0.8, 10, false, -1);
+                robot.turnForTime(robot_power, 10, false, -1);
             }
-
             if (this.gamepad1.right_stick_x < -0.5) {
-                robot.turnForTime(0.8, 10, false, 1);
+                robot.turnForTime(robot_power, 10, false, 1);
             }
 
 
@@ -42,65 +40,21 @@ public class TeleopTest extends LinearOpMode {
                 robot.turnOff();
             }
             if (this.gamepad1.left_stick_y > 0.5) {
-                robot.moveF(1, 10);
+                robot.moveForward(robot_power);
             }
-
             if (this.gamepad1.left_stick_y < -0.5) {
-                robot.moveB(1, 10);
+                robot.moveBackward(robot_power);
             }
-
             if (this.gamepad1.left_stick_x > 0.5) {
-                robot.moveR(1, 10);
+                robot.moveRight(robot_power);
             }
-
             if (this.gamepad1.left_stick_x < -0.5) {
-                robot.moveL(1, 10);
+                robot.moveLeft(robot_power);
             }
 
-            /*if (this.gamepad1.left_trigger > 0.5) {
-                robot.startIntake(10);
-                robot.startShoot();
-                robot.teleOpMotorBehavior();
-            }
-
-            if (this.gamepad1.b == true) {
-                robot.startShoot();
-            }
-            if (this.gamepad1.b == false){
-                robot.endShoot();
-            }
-            if (this.gamepad2.a == true){
-                robot.openGrip();
-            }
-            if (this.gamepad2.b == true){
-                robot.closeGrip();
-            }
-            if (this.gamepad2.dpad_up){robot.minRaise();}
-            if (this.gamepad2.dpad_down){robot.minLower();}
-            if(this.gamepad2.dpad_down == false && this.gamepad2.dpad_up == false){robot.stopWobble();}
-            if(this.gamepad1.right_trigger > 0.5){
-                robot.weakShot();
-                robot.stopIntake();
-            }*/
             if (this.gamepad1.dpad_left == false && this.gamepad1.dpad_right == false && this.gamepad1.dpad_up == false && this.gamepad1.dpad_down == false) {
                 robot.turnOff();
             }
-
-//            if (this.gamepad1.dpad_left == true) {
-//                robot.moveR(0.5, 10);
-//            }
-//
-//            if (this.gamepad1.dpad_right == true) {
-//                robot.moveL(0.5, 10);
-//            }
-
-//            if (this.gamepad1.dpad_up == true) {
-//                robot.moveF(0.5, 10);
-//            }
-//
-//            if (this.gamepad1.dpad_down == true) {
-//                robot.moveB(0.5, 10);
-//            }
 
             if (this.gamepad1.a == true) {
                 robot.pixOnBackdrop();
@@ -117,21 +71,7 @@ public class TeleopTest extends LinearOpMode {
                 robot.armPark();
             }
 
-//            if (this.gamepad1.dpad_up == true) {
-//                robot.armDown();
-//            } //else
-//            if (this.gamepad1.dpad_down == true) {
-//                robot.armUp();
-//            }
-//            else {
-//                robot.armOff();
-//            }
-
-//            if (this.gamepad1.right_bumper == true) {
-//               // robot.clawTest();
-//            }
-
-            // Use gamepad buttons to move the linear actuator
+            // Use gamepad buttons to move the slide
             // expand (Left Bumper) and contracts (Right Bumper)
             if (this.gamepad1.left_bumper) {
                  robot.expandSlide();
@@ -145,33 +85,23 @@ public class TeleopTest extends LinearOpMode {
                 // robot.pushPlane();
             }
             if (this.gamepad1.dpad_up == true) {
+//                robot.moveForwardToPosition(robot_power, 18, 3);
                 robot.turnSlide();
             }
             if (this.gamepad1.dpad_down == true) {
+//                robot.moveBackwardToPosition(robot_power, 18, 3);
                 robot.turnSlideBack();
             }
-            if (this.gamepad1.dpad_up == false && this.gamepad1.dpad_down == false) {
-                robot.clawStop();
-            }
-            /* Claw/Arm controls */
+//            if (this.gamepad1.dpad_left == true) {
+//                robot.moveLeftToPosition(robot_power, 18, 3);
+//            }
+//            if (this.gamepad1.dpad_right == true) {
+//                robot.moveRightToPosition(robot_power, 18, 3);
+//            }
 
-//            if (this.gamepad2.dpad_up == true) {
-//                robot.clawSlowOpen();
-//            } //else
-//            if (this.gamepad2.dpad_down == true) {
-//                robot.clawSlowClose();
-//            }
-//
-//            if (this.gamepad2.b == true) {
-//                robot.pixRelease();
-//            }
-//            if (this.gamepad2.a == true) {
-//                robot.pixGrab();
-//            }
-//
-//            if (this.gamepad2.left_stick_button == true) {
-//                robot.pixGrip();
-//            }
+            if (this.gamepad1.dpad_up == false && this.gamepad1.dpad_down == false) {
+                robot.turnOff();
+            }
         };
     };
 }

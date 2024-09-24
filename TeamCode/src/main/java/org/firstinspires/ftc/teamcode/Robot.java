@@ -1,15 +1,15 @@
-package org.firstinspires.ftc.teamcode;
+ package org.firstinspires.ftc.teamcode;
 
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
+import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
 import static java.lang.Math.abs;
-
 import android.util.Log;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-
+import org.firstinspires.ftc.teamcode.PIDController;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -19,51 +19,42 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class Robot extends Thread {
-
     private HardwareMap hardwareMap;
     private Telemetry telemetry;
     private ElapsedTime runtime = new ElapsedTime();
+
     double arm_start_position = 0.0;
     double claw_start_position = 1;
-
     double arm_end_position = .65;
     double claw_end_position = 0.5;
 
-    //private static final int TICKS_PER_ROTATION = 1440; //Tetrix motor specific
+    private final int tollerance = 15;
     private static final double TICKS_PER_ROTATION = 537.7; //Gobilda 5203 312 RMP motor specific
-
-    private static final double WHEEL_DIAMETER = 3.78; //Wheel diameter in inches
-    private static final double LA_EXPAND_POWER =  0.80 ; // Run actuator motor up at 80% power
-    private static final double LA_CONTRACT_POWER  = -0.80 ; // Run actuator motor down at -80% power
-
+    private static final double WHEEL_DIAMETER = 4.094; //Wheel diameter in inches
+    private static final double WHEEL_WIDTH = 1.496; // wheel width in inches
     static final double DRIVE_GEAR_REDUCTION = 1.0;     // No External Gearing.
+
     private static final double ARM_TICKS_PER_ROTATION = 145.1;
     private static final double ARM_WHEEL_DIAMETER = 1; //Wheel diameter in inches
     static final double ARM_COUNTS_PER_INCH = (ARM_TICKS_PER_ROTATION * DRIVE_GEAR_REDUCTION) /
             (ARM_WHEEL_DIAMETER * 3.1415);
 
-    private String TAG = "FTC";
+    private String TAG = "BnB";
 
     private DcMotorEx Motor_FL;
     private DcMotorEx Motor_FR;
     private DcMotorEx Motor_BR;
     private DcMotorEx Motor_BL;
-    private DcMotorEx Motor_VSL, Motor_VSR;
+    private DcMotorEx Motor_VSL;
+    private DcMotorEx Motor_VSR;
     private DcMotorEx Motor_WBL;
     private DcMotorEx Motor_WBR;
-    private Servo planePusher, armServo, clawServo;
-   // private CRServo clawServo;
-    //private Servo armServo;
+    private Servo armServo, clawServo;
     private BNO055IMU imu;
-    private Orientation     angles;
-    private PIDController   pidRotate, pidDrive;
-    private Orientation     lastAngles = new Orientation();
-    private double          globalAngle, correction;
-
-
-    private final int tollerance = 15;
-
-
+    private Orientation angles;
+    private PIDController pidRotate, pidDrive;
+    private Orientation lastAngles = new Orientation();
+    private double globalAngle, correction;
     public boolean isTeleOp = true;
     private boolean DEBUG_DEBUG = true;
     private boolean DEBUG_INFO = true;
@@ -73,29 +64,6 @@ public class Robot extends Thread {
         telemetry = tel;
         initDevices();
     }
-
-    /* Calculate Drivetrain PID cofficients */
-/*
-    private final int motorFLMaxSpeed = 2780;
-    double motorFLF = 32767 / (double) motorFLMaxSpeed;
-    double motorFLP = 0.1 * motorFLF;
-    double mototFLI = 0.1 * motorFLP;
-
-    private final int motorFRMaxSpeed = 2800;
-    double motorFRF = 32767 / (double) motorFRMaxSpeed;
-    double motorFRP = 0.1 * motorFRF;
-    double mototFRI = 0.1 * motorFRP;
-
-    private final int motorBLMaxSpeed = 2760;
-    double motorBLF = 32767 / (double) motorBLMaxSpeed;
-    double motorBLP = 0.1 * motorBLF;
-    double mototBLI = 0.1 * motorBLP;
-
-    private final int motorBRMaxSpeed = 2720;
-    double motorBRF = 32767 / (double) motorBRMaxSpeed;
-    double motorBRP = 0.1 * motorBRF;
-    double mototBRI = 0.1 * motorBRP; */
-
 
     private void initDeviceCore() throws Exception {
 
@@ -112,43 +80,8 @@ public class Robot extends Thread {
         Motor_WBL = hardwareMap.get(DcMotorEx.class, "wb_l");
         Motor_WBR = hardwareMap.get(DcMotorEx.class, "wb_r");
 
-        //planePusher = hardwareMap.get(Servo.class, "planePusher");
         //clawServo   = hardwareMap.get(Servo.class, "clawServo");
         //armServo    = hardwareMap.get(Servo.class, "armServo");
-       /*Motor_FR.setVelocityPIDFCoefficients(0.95, 0.095, 0, 9.5);
-        Motor_FR.setPositionPIDFCoefficients(5.0);
-
-        Motor_FL.setVelocityPIDFCoefficients(0.95, 0.095, 0, 9.5);
-        Motor_FL.setPositionPIDFCoefficients(5.0);
-
-        Motor_BR.setVelocityPIDFCoefficients(0.93, 0.093, 0, 9.3);
-        Motor_BR.setPositionPIDFCoefficients(5.0);
-
-        Motor_BL.setVelocityPIDFCoefficients(0.93, 0.093, 0, 9.3);
-        Motor_BL.setPositionPIDFCoefficients(5.0);
-
-        Log.i(TAG, "Motor FR Cofficients: P: " + motorFRP + " I: " + mototFRI + " F: " + motorFRF);
-        Log.i(TAG, "Motor FL Cofficients: P: " + motorFLP + " I: " + mototFLI + " F: " + motorFLF);
-        Log.i(TAG, "Motor BR Cofficients: P: " + motorBRP + " I: " + mototBRI + " F: " + motorBRF);
-        Log.i(TAG, "Motor BL Cofficients: P: " + motorBLP + " I: " + mototBLI + " F: " + motorBLF);
-
-        Motor_FR.setVelocityPIDFCoefficients(motorFRP, mototFRI, 0, motorFRF);
-        Motor_FR.setPositionPIDFCoefficients(8.2);
-
-        Motor_FL.setVelocityPIDFCoefficients(motorFLP, mototFLI, 0, motorFLF);
-        Motor_FL.setPositionPIDFCoefficients(8.0);
-
-        Motor_BR.setVelocityPIDFCoefficients(motorBRP, mototBRI, 0, motorBRF);
-        Motor_BR.setPositionPIDFCoefficients(8.2);
-
-        Motor_BL.setVelocityPIDFCoefficients(motorBLP, mototBLI, 0, motorBLF);
-        Motor_BL.setPositionPIDFCoefficients(8.0);
-
-        Motor_FL.setTargetPositionTolerance(15);
-        Motor_FR.setTargetPositionTolerance(15);
-        Motor_BL.setTargetPositionTolerance(15);
-        Motor_BR.setTargetPositionTolerance(15);*/
-
 
         Motor_FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Motor_FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -177,13 +110,19 @@ public class Robot extends Thread {
         // straight line. P value controls how sensitive the correction is.
         pidDrive = new PIDController(.05, 0, 0);
 
-        angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        Log.i(TAG, "Start Orientation First : "+ angles.firstAngle + "Second: " + angles.secondAngle + "Third: " + angles.thirdAngle );
+//        angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+//        Log.i(TAG, "Start Orientation First : "+ angles.firstAngle + "Second: " + angles.secondAngle + "Third: " + angles.thirdAngle );
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
     }
 
+    private void pause(int milliSec) {
+        try {
+            sleep(milliSec);
+        } catch (Exception e) {
+        }
+    }
 
     private void initDevices() {
         ElapsedTime mRuntime;
@@ -195,40 +134,19 @@ public class Robot extends Thread {
         } catch (Exception e) {
             telemetry.addData("Exception", "In function init devices" + e);
             telemetry.update();
-            try {
-                sleep(10000);
-            } catch (Exception e1) {
-            }
-
-        }
-
-    }
-
-    private void pause(int milliSec) {
-        try {
-            sleep(milliSec);
-        } catch (Exception e) {
+            pause(10000);
         }
     }
 
     // This function takes input distance in inches and will return Motor ticks needed
     // to travel that distance based on wheel diameter
     private int DistanceToTick(double distance) {
-        // Log.i(TAG, "Enter FUNC: DistanceToTick");
-
         double circumference = WHEEL_DIAMETER * 3.14;
         double num_rotation = distance / circumference;
         int encoder_ticks = (int) (num_rotation * TICKS_PER_ROTATION);
-
-        //       Log.i(TAG,"Rotation Needed : " + num_rotation);
-        //if (DEBUG_INFO) {
         Log.i(TAG, "Ticks Needed : " + encoder_ticks);
-        //  Log.i(TAG, "Exit FUNC: DistanceToTick");
-        //}
-
         return (encoder_ticks);
     }
-
 
     boolean drivetrainBusy(int ticks) {
         int avg = (abs(Motor_FL.getCurrentPosition())
@@ -240,6 +158,7 @@ public class Robot extends Thread {
         }
         return true;
     }
+
 
     /*****************************************************************************/
     /* Section:      Move to specific distance functions                         */
@@ -254,10 +173,10 @@ public class Robot extends Thread {
 
     /*****************************************************************************/
     // Move forward to specific distance in inches, with power (0 to 1)
-    public void moveForwardToPosition(double power, double distance) {
+    public void moveForwardToPosition(double power, double distance, double timeoutS) {
         Log.i(TAG, "Enter Function: moveForwardToPosition Power : " + power + " and distance : " + distance);
         // Reset all encoders
-        long startTime = System.currentTimeMillis();
+        runtime.reset();
 
         Motor_FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Motor_FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -285,10 +204,7 @@ public class Robot extends Thread {
         Motor_BR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Motor_BL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (Motor_FL.isBusy() && Motor_BL.isBusy() && Motor_FR.isBusy() && Motor_BR.isBusy()) {
-            if ((System.currentTimeMillis() - startTime) > 3000) {
-                break;
-            }
+        while ((runtime.seconds() < timeoutS) && Motor_FL.isBusy() && Motor_BL.isBusy() && Motor_FR.isBusy() && Motor_BR.isBusy()) {
             if (DEBUG_DEBUG) {
                 Log.i(TAG, "Actual Ticks Motor0 : " + Motor_FL.getCurrentPosition());
                 Log.i(TAG, "Actual Ticks Motor1 : " + Motor_FR.getCurrentPosition());
@@ -299,7 +215,6 @@ public class Robot extends Thread {
             telemetry.addData("Forward", "Moving");
             telemetry.update();
         }
-
 
         //Reached the distance, so stop the motors
         Motor_FL.setPower(0);
@@ -331,10 +246,10 @@ public class Robot extends Thread {
 
     /*****************************************************************************/
     // Move backward to specific distance in inches, with power (0 to 1)
-    public void moveBackwardToPosition(double power, double distance) {
+    public void moveBackwardToPosition(double power, double distance, double timeoutS) {
         Log.i(TAG, "Enter Function: moveBackwardToPosition Power : " + power + " and distance : " + distance);
         // Reset all encoders
-        long startTime = System.currentTimeMillis();
+        runtime.reset();
 
         Motor_FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Motor_FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -362,10 +277,7 @@ public class Robot extends Thread {
         Motor_BR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Motor_BL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (Motor_FL.isBusy() && Motor_BL.isBusy() && Motor_FR.isBusy() && Motor_BR.isBusy()) {
-            if ((System.currentTimeMillis() - startTime) > 3000) {
-                break;
-            }
+        while ((runtime.seconds() < timeoutS) && Motor_FL.isBusy() && Motor_BL.isBusy() && Motor_FR.isBusy() && Motor_BR.isBusy()) {
             if (DEBUG_DEBUG) {
                 Log.i(TAG, "Actual Ticks Motor0 : " + Motor_FL.getCurrentPosition());
                 Log.i(TAG, "Actual Ticks Motor2 : " + Motor_BR.getCurrentPosition());
@@ -393,6 +305,8 @@ public class Robot extends Thread {
             Log.i(TAG, "Exit Function: moveBackwardToPosition");
         }
     }
+
+
     /*****************************************************************************/
     /* Section:      Move to specific distance functions                         */
     /*                                                                           */
@@ -406,10 +320,10 @@ public class Robot extends Thread {
 
     /*****************************************************************************/
     // Move Left to specific distance in inches, with power (0 to 1)
-    public void moveLeftToPosition(double power, double distance) {
+    public void moveLeftToPosition(double power, double distance, double timeoutS) {
         Log.i(TAG, "Enter Function: moveLeftToPosition Power : " + power + " and distance : " + distance);
         // Reset all encoders
-        long startTime = System.currentTimeMillis();
+        runtime.reset();
 
         Motor_FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Motor_FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -437,10 +351,7 @@ public class Robot extends Thread {
         Motor_BR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Motor_BL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (Motor_FL.isBusy() && Motor_BL.isBusy() && Motor_FR.isBusy() && Motor_BR.isBusy()) {
-            if ((System.currentTimeMillis() - startTime) > 3000) {
-                break;
-            }
+        while ((runtime.seconds() < timeoutS) && Motor_FL.isBusy() && Motor_BL.isBusy() && Motor_FR.isBusy() && Motor_BR.isBusy()) {
             if (DEBUG_DEBUG) {
                 Log.i(TAG, "Actual Ticks Motor0 : " + Motor_FL.getCurrentPosition());
                 Log.i(TAG, "Actual Ticks Motor1 : " + Motor_FR.getCurrentPosition());
@@ -468,6 +379,8 @@ public class Robot extends Thread {
             Log.i(TAG, "Exit Function: moveLeftToPosition");
         }
     }
+
+
     /*****************************************************************************/
     /* Section:      Move to specific distance functions                         */
     /*                                                                           */
@@ -481,10 +394,10 @@ public class Robot extends Thread {
 
     /*****************************************************************************/
     // Move Right to specific distance in inches, with power (0 to 1)
-    public void moveRightToPosition(double power, double distance) {
+    public void moveRightToPosition(double power, double distance, double timeoutS) {
         Log.i(TAG, "Enter Function: moveRightToPosition Power : " + power + " and distance : " + distance);
         // Reset all encoders
-        long startTime = System.currentTimeMillis();
+        runtime.reset();
 
         Motor_FL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Motor_FR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -512,10 +425,7 @@ public class Robot extends Thread {
         Motor_BR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Motor_BL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while (Motor_FL.isBusy() && Motor_BL.isBusy() && Motor_FR.isBusy() && Motor_BR.isBusy()) {
-            if ((System.currentTimeMillis() - startTime) > 3000) {
-                break;
-            }
+        while ((runtime.seconds() < timeoutS) && Motor_FL.isBusy() && Motor_BL.isBusy() && Motor_FR.isBusy() && Motor_BR.isBusy()) {
             if (DEBUG_DEBUG) {
                 Log.i(TAG, "Actual Ticks Motor0 : " + Motor_FL.getCurrentPosition());
                 Log.i(TAG, "Actual Ticks Motor1 : " + Motor_FR.getCurrentPosition());
@@ -544,6 +454,7 @@ public class Robot extends Thread {
         }
     }
 
+
     /*****************************************************************************/
     /* Section:      Move For specific time functions                            */
     /*                                                                           */
@@ -571,11 +482,7 @@ public class Robot extends Thread {
         Motor_BR.setPower(power);
         Motor_BL.setPower((-1) * power);
 
-        try {
-            sleep(time);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        pause(time);
 
         //Reached the distance, so stop the motors
         Motor_FL.setPower(0);
@@ -600,11 +507,7 @@ public class Robot extends Thread {
         Motor_BR.setPower((-1) * power);
         Motor_BL.setPower(power);
 
-        try {
-            sleep(time);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+       pause(time);
 
         //Reached the distance, so stop the motors
         Motor_FL.setPower(0);
@@ -628,12 +531,7 @@ public class Robot extends Thread {
         Motor_BR.setPower((-1) * power);
         Motor_BL.setPower((-1) * power);
 
-
-        try {
-            sleep(time);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        pause(time);
 
         Motor_FL.setPower(0);
         Motor_FR.setPower(0);
@@ -657,12 +555,7 @@ public class Robot extends Thread {
         Motor_BR.setPower(power);
         Motor_BL.setPower(power);
 
-
-        try {
-            sleep(time);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        pause(time);
 
         //Reached the distance, so stop the motors
         Motor_FL.setPower(0);
@@ -685,18 +578,6 @@ public class Robot extends Thread {
         Motor_FR.setPower(orientation * power);
         Motor_BR.setPower(orientation * power);
         Motor_BL.setPower(orientation * power);
-
-       /* try {
-            sleep(time);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        //Reached the distance, so stop the motors
-        Motor_FL.setPower(0);
-        Motor_FR.setPower(0);
-        Motor_BR.setPower(0);
-        Motor_BL.setPower(0);*/
     }
 
     public void turnOff(){
@@ -706,39 +587,33 @@ public class Robot extends Thread {
         Motor_BL.setPower(0);
     }
 
-
-    public void moveF(double power, long distance) {
-
+    public void moveForward(double power) {
         Motor_FL.setPower(power);
         Motor_FR.setPower((-1) * power);
         Motor_BR.setPower((-1) * power);
         Motor_BL.setPower(power);
-
     }
 
-    public void moveB(double power, long distance) {
+    public void moveBackward(double power) {
         Motor_FL.setPower((-1) * power); //FL
         Motor_FR.setPower(power); //FR
         Motor_BR.setPower(power); //BR
         Motor_BL.setPower((-1) * power); //BL
-
     }
 
-    public void moveL(double power, long distance) {
+    public void moveLeft(double power) {
         Motor_FL.setPower(power );
         Motor_FR.setPower(power);
         Motor_BR.setPower((-1) * power);
         Motor_BL.setPower((-1) *  power);
     }
 
-    public void moveR(double power, long distance) {
+    public void moveRight(double power) {
         Motor_FL.setPower((-1) * power);
         Motor_FR.setPower((-1) * power);
         Motor_BR.setPower(power);
         Motor_BL.setPower(power);
-
     }
-
 
     private void resetAngle()
     {
@@ -809,30 +684,13 @@ public class Robot extends Thread {
         pidRotate.setTolerance(2);
         pidRotate.enable();
 
-
-
         // getAngle() returns + when rotating counter clockwise (left) and - when rotating
         // clockwise (right).
-
         // rotate until turn is completed.
 
         if (degrees < 0)
         {
             // On right turn we have to get off zero first.
-          /*  while (getAngle() == 0)
-            {
-                // set power to rotate.
-                Motor_FL.setPower(power);
-                Motor_FR.setPower(power);
-                Motor_BL.setPower(power);
-                Motor_BR.setPower(power);
-                Log.i(TAG, "Function: rotate, Angle less then 0 Motor Power set to: " + power);
-                try {
-                    sleep(100);
-                } catch (Exception e) {
-                }
-            }*/
-
             do// Right  turn.
             {
                 angle = getAngle();
@@ -865,72 +723,21 @@ public class Robot extends Thread {
         //rotation = getAngle();
 
         // wait for rotation to stop.
-        try {
-            sleep(500);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        pause(500);
 
         // reset angle tracking on new heading.
         resetAngle();
         Log.i(TAG, "Exit Function: rotate");
     }
 
-
-    public void pushPlane (){
-        planePusher.setDirection(Servo.Direction.REVERSE);
-        planePusher.setPosition(0.8);
-        try {
-            sleep(1000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        planePusher.setPosition(0.0);
-    }
-
     /* Grab the pixel */
     public void pixRelease() {
-//        clawServo.setDirection(FORWARD);
-//        clawServo.setPower(.2);
-//        try {
-//            sleep(10);
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
-//        clawServo.setPower(0);
         clawServo.setPosition(claw_end_position);
     }
 
     /* release the pixel */
     public  void pixGrab(){
-
-//        clawServo.setDirection(REVERSE);
-//        clawServo.setPower(.8);
-//        try {
-//            sleep(10);
-//        } catch (InterruptedException e) {
-//            throw new RuntimeException(e);
-//        }
-//        clawServo.setPower(0);
          clawServo.setPosition(claw_start_position);
-
-//        double currPosition = 0;
-//        currPosition = clawServo.getPosition();
-//        currPosition = currPosition + 0.1;
-//        if (currPosition < .2){
-//            clawServo.setPosition(currPosition);
-//        } else {
-//            clawServo.setPosition(0.2);
-//        }
-//        while (currPosition <= 0.4) {
-//            currPosition = currPosition + 0.1;
-//            clawServo.setPosition(currPosition);
-//            try {
-//                sleep(100);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
     }
 
     /* stowed away inside, claw facing backwards */
@@ -945,23 +752,16 @@ public class Robot extends Thread {
     public void armGatePickUp(){
         armServo.setPosition(.83);
     };
+
     public void armDown (){
         double curr_position = armServo.getPosition();
         telemetry.addData("Arm Down", "Position %f ", curr_position); //Displays "Status: Initialized"
         telemetry.update();
-        try {
-            sleep(10);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        pause(100);
         curr_position = curr_position + 0.1;
         if(curr_position <= 1) {
             armServo.setPosition(curr_position);
-            try {
-                sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            pause(100);
         } else {
             armServo.setPosition(1);
         }
@@ -971,20 +771,12 @@ public class Robot extends Thread {
         double curr_position = armServo.getPosition();
         telemetry.addData("Arm Up", "Position %f ", curr_position); //Displays "Status: Initialized"
         telemetry.update();
-        try {
-            sleep(10);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        pause(100);
 
         curr_position = curr_position - 0.1;
         if(curr_position >= 0.0) {
             armServo.setPosition(curr_position);
-            try {
-                sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            pause(100);
         } else {
             armServo.setPosition(0.1);
         }
@@ -994,19 +786,11 @@ public class Robot extends Thread {
         double curr_position = clawServo.getPosition();
         telemetry.addData("ClawOpen", "Position %f ", curr_position); //Displays "Status: Initialized"
         telemetry.update();
-        try {
-            sleep(10);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        pause(100);
         curr_position = curr_position + 0.1;
         if(curr_position >= claw_end_position) {
             clawServo.setPosition(curr_position);
-            try {
-                sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            pause(100);
         } else {
             clawServo.setPosition(claw_end_position);
         }
@@ -1016,20 +800,12 @@ public class Robot extends Thread {
         double curr_position = clawServo.getPosition();
         telemetry.addData("Claw Close", "Position %f ", curr_position); //Displays "Status: Initialized"
         telemetry.update();
-        try {
-            sleep(10);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        pause(100);
 
         curr_position = curr_position - 0.1;
         if(curr_position <= claw_start_position) {
             clawServo.setPosition(curr_position);
-            try {
-                sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            pause(100);
         } else {
             clawServo.setPosition(claw_start_position);
         }
@@ -1042,132 +818,98 @@ public class Robot extends Thread {
     /* claw to face backdrop and release the pixel */
     public void pixOnBackdrop () {
         armServo.setPosition(0.6);
-        try {
-            sleep(1000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        //clawServo.setPosition(0.2);
-        //pixRelease();
+        pause(1000);
     }
 
     public void pixGrip () {
         armServo.setPosition(0.2);
-        try {
-            sleep(200);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        pause(200);
         clawServo.setPosition(0.1);
-        try {
-            sleep(100);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        pause(100);
         clawServo.setPosition(0);
-
     }
 
     /* just a test routine */
     public void clawTest () {
         armRdy();
         pixGrab();
-        try {
-            sleep(2000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        pause(100);
         armPark();
-        try {
-            sleep(2000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        moveForwardToPosition(1,24);
-        moveRightToPosition(1,23);
-        moveForwardToPosition(1, 17);
+        pause(100);
+        moveForwardToPosition(1,24,5);
+        moveRightToPosition(1,23, 5);
+        moveForwardToPosition(1, 17, 5);
         pixOnBackdrop();
-        try {
-            sleep(1000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        moveBackwardToPosition(1,5);
+        pause(100);
+        moveBackwardToPosition(1,5, 5);
     }
 
     public void expandSlide () {
-//        Motor_VSL.setPower(LA_EXPAND_POWER);
-//        Motor_VSR.setPower(LA_EXPAND_POWER);
         Log.i(TAG, "Slide Expanding");
-        moveDCMotorByDistance(Motor_VSL, Motor_VSR,0.5,1,500);
+        moveDCMotorByDistance(Motor_VSL, Motor_VSR,0.8,6,1);
     }
 
     public void contractSlide () {
-        Motor_VSL.setPower(LA_CONTRACT_POWER);
-        Motor_VSR.setPower(LA_CONTRACT_POWER);
+        moveDCMotorByDistance(Motor_VSL, Motor_VSR,0.8,-6,1);
         Log.i(TAG, "Slide Contracting");
     }
 
     public void stopSlide() {
-        Motor_VSL.setPower(0.0);
-        Motor_VSR.setPower(0.0);
-        Log.i(TAG, "Slide Stopped");
+//        Motor_VSL.setPower(0.0);
+//        Motor_VSR.setPower(0.0);
+//        Log.i(TAG, "Slide Stopped");
     }
 
     public void turnSlide() {
-        moveDCMotorByDistance(Motor_WBL, Motor_WBR,0.5,1,500);
-//        Motor_WBL.setPower(1);
-//        Motor_WBR.setPower(1);
-
+        turnSlideByDistance(1,4,2);
     }
     public void turnSlideBack() {
-        moveDCMotorByDistance(Motor_WBL, Motor_WBR,0.5,-11,500);
-//        Motor_WBL.setPower(-1);
-//        Motor_WBR.setPower(-1);
+        turnSlideByDistance(1,-4,2);
     }
     public void clawStop() {
         Motor_WBL.setPower(0.0);
         Motor_WBR.setPower(0.0);
-        //Motor_WBL.setTargetPosition(80);
     }
 
     private void moveDCMotorByDistance(DcMotorEx leftMotor,DcMotorEx rightMotor, double speed, double moveDistance, double timeoutS)
     {
         // make motor run using encoder
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor.setDirection(FORWARD);
+        rightMotor.setDirection(REVERSE);
+
+        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
          // Send telemetry message to indicate the current and new location
-        double moveTarget =  moveDistance * ARM_COUNTS_PER_INCH;
-        telemetry.addData("Starting at", "%7d and moving to %7d", leftMotor.getCurrentPosition(), moveTarget);
+        int moveTarget =  (int) (moveDistance * ARM_COUNTS_PER_INCH);
+        telemetry.addData("Starting at", "left %7d, right %7d and moving to %7d", leftMotor.getCurrentPosition(), rightMotor.getCurrentPosition(), moveTarget);
         telemetry.update();
-        try {
-            sleep(250);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        pause(1000);
 
         //move to new target position
-        leftMotor.setTargetPosition((int)moveTarget);
+        leftMotor.setTargetPosition(moveTarget);
+        rightMotor.setTargetPosition(moveTarget);
+
         leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightMotor.setTargetPosition((int)moveTarget);
         rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // reset the timeout time and start motion.
         runtime.reset();
-        leftMotor.setPower(abs(speed));
-        rightMotor.setPower(abs(speed));
+        leftMotor.setPower(speed);
+        rightMotor.setPower(speed);
+
 
         // sleep
-        while ((runtime.seconds() < timeoutS) && leftMotor.isBusy()) {
-            // Display it for the driver.
-            telemetry.addData("Running to", " %7d", moveTarget);
-            telemetry.addData("Currently at", " at %7d ",
-                    leftMotor.getCurrentPosition());
+        while ((runtime.seconds() < timeoutS) && leftMotor.isBusy() && rightMotor.isBusy()) {
+            // Display it for the driver.;
+            telemetry.addData("Running to", " %7d, left - %7d, right - %7d", moveTarget, leftMotor.getTargetPosition(), rightMotor.getTargetPosition());
+            telemetry.addData("Currently at", " left %7d and right %7d ",
+                    leftMotor.getCurrentPosition(), rightMotor.getCurrentPosition());
+            telemetry.addData("time now is", " at %7f ", runtime.seconds());
             telemetry.update();
-            //sleep(500);   // optional pause after each move.
+            pause(100);
         }
 
         // Stop all motion;
@@ -1176,11 +918,58 @@ public class Robot extends Thread {
         // Turn off RUN_TO_POSITION
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        try {
-            sleep(150);   // optional pause after each move.
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        pause(100);
+    }
+
+    private void turnSlideByDistance(double speed, double moveDistance, double timeoutS)
+    {
+        DcMotorEx leftMotor = Motor_WBL;
+        DcMotorEx rightMotor = Motor_WBR;
+
+            // make motor run using encoder
+        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor.setDirection(FORWARD);
+        rightMotor.setDirection(FORWARD);
+
+        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        // Send telemetry message to indicate the current and new location
+        int moveTarget =  (int) (moveDistance * ARM_COUNTS_PER_INCH);
+        telemetry.addData("Starting at", "left %7d, right %7d and moving to %7d", leftMotor.getCurrentPosition(), rightMotor.getCurrentPosition(), moveTarget);
+        telemetry.update();
+        pause(100);
+
+        //move to new target position
+        leftMotor.setTargetPosition(moveTarget);
+        rightMotor.setTargetPosition(moveTarget);
+
+        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // reset the timeout time and start motion.
+        runtime.reset();
+        leftMotor.setPower(abs(speed));
+        rightMotor.setPower(abs(speed));
+
+        // sleep
+        while ((runtime.seconds() < timeoutS) && leftMotor.isBusy() && rightMotor.isBusy()) {
+            // Display it for the driver.
+            telemetry.addData("Running to", " %7d, left - %7d, right - %7d", moveTarget, leftMotor.getTargetPosition(), rightMotor.getTargetPosition());
+            telemetry.addData("Currently at", " left %7d and right %7d ",
+                    leftMotor.getCurrentPosition(), rightMotor.getCurrentPosition());
+            telemetry.addData("time now is", " at %7f ",
+                    runtime.seconds());
+            telemetry.update();
+            pause(100);
         }
 
+        // Stop all motion;
+        leftMotor.setPower(0);
+        rightMotor.setPower(0);
+        // Turn off RUN_TO_POSITION
+        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 }
