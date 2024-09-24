@@ -9,7 +9,7 @@ public class TeleopTest extends LinearOpMode {
     @Override
     public void runOpMode()  {
 
-        Robot robot = new Robot(hardwareMap, telemetry);
+        BBRobot robot = new BBRobot(hardwareMap, telemetry);
         robot.isTeleOp = true;
 
         telemetry.addData("Status", "Initialized"); //Displays "Status: Initialized"

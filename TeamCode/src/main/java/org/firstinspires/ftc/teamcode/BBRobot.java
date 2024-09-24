@@ -9,7 +9,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.teamcode.PIDController;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -18,7 +17,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-public class Robot extends Thread {
+public class BBRobot extends Thread {
     private HardwareMap hardwareMap;
     private Telemetry telemetry;
     private ElapsedTime runtime = new ElapsedTime();
@@ -59,7 +58,7 @@ public class Robot extends Thread {
     private boolean DEBUG_DEBUG = true;
     private boolean DEBUG_INFO = true;
 
-    Robot(HardwareMap map, Telemetry tel) {
+    BBRobot(HardwareMap map, Telemetry tel) {
         hardwareMap = map;
         telemetry = tel;
         initDevices();
