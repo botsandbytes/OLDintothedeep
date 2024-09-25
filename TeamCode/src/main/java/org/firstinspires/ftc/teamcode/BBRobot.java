@@ -26,6 +26,8 @@ public class BBRobot extends Thread {
     double arm_end_position = .65;
     double claw_end_position = .65;
     double claw_start_position = .8;
+    double wrist_end_position = .2;
+    double wrist_start_position = 1;
 
     private final int tollerance = 15;
     private static final double TICKS_PER_ROTATION = 537.7; //Gobilda 5203 312 RMP motor specific
@@ -783,32 +785,32 @@ public class BBRobot extends Thread {
         }
     }
 
-    public void clawSlowOpen (){
-        double curr_position = clawServo.getPosition();
-        telemetry.addData("ClawOpen", "Position %f ", curr_position);
+    public void wristUp (){
+        double curr_position = wristServo.getPosition();
+        telemetry.addData("wristOpen", "Position %f ", curr_position);
         telemetry.update();
         pause(100);
         curr_position = curr_position + 0.1;
-        if(curr_position >= claw_end_position) {
-            clawServo.setPosition(curr_position);
+        if(curr_position >= wrist_end_position) {
+            wristServo.setPosition(curr_position);
             pause(100);
         } else {
-            clawServo.setPosition(claw_end_position);
+            wristServo.setPosition(wrist_end_position);
         }
     }
 
-    public void clawSlowClose (){
-        double curr_position = clawServo.getPosition();
-        telemetry.addData("Claw Close", "Position %f ", curr_position);
+    public void wristDown (){
+        double curr_position = wristServo.getPosition();
+        telemetry.addData("Wrist Close", "Position %f ", curr_position);
         telemetry.update();
         pause(100);
 
         curr_position = curr_position - 0.1;
-        if(curr_position <= claw_start_position) {
-            clawServo.setPosition(curr_position);
+        if(curr_position <= wrist_start_position) {
+            wristServo.setPosition(curr_position);
             pause(100);
         } else {
-            clawServo.setPosition(claw_start_position);
+            wristServo.setPosition(wrist_start_position);
         }
     }
 

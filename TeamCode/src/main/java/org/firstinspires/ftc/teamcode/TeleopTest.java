@@ -64,6 +64,14 @@ public class TeleopTest extends LinearOpMode {
                 robot.pixRelease();
             }
 
+            if (this.gamepad1.x == true) {
+                robot.wristUp();
+            }
+
+            if (this.gamepad1.y == true) {
+                robot.wristDown();
+            }
+
             if (this.gamepad1.right_trigger > 0.5) {
                 robot.armRdy();
             }
