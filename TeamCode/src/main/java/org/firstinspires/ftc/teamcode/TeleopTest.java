@@ -92,12 +92,14 @@ public class TeleopTest extends LinearOpMode {
 //                robot.moveBackwardToPosition(robot_power, 18, 3);
                 robot.turnSlideBack();
             }
-//            if (this.gamepad1.dpad_left == true) {
+            if (this.gamepad1.dpad_left == true) {
+//                robot.rotateAntiClock(90, robot_power);
 //                robot.moveLeftToPosition(robot_power, 18, 3);
-//            }
-//            if (this.gamepad1.dpad_right == true) {
+            }
+            if (this.gamepad1.dpad_right == true) {
+//                robot.rotateAntiClock(-90, robot_power);
 //                robot.moveRightToPosition(robot_power, 18, 3);
-//            }
+            }
 
             if (this.gamepad1.dpad_up == false && this.gamepad1.dpad_down == false) {
                 robot.turnOff();

@@ -9,10 +9,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-
-import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -49,7 +49,7 @@ public class BBRobot extends Thread {
     private DcMotorEx Motor_WBL;
     private DcMotorEx Motor_WBR;
     private Servo armServo, clawServo;
-    private BNO055IMU imu;
+    private IMU imu;
     private Orientation angles;
     private PIDController pidRotate, pidDrive;
     private Orientation lastAngles = new Orientation();
@@ -69,6 +69,8 @@ public class BBRobot extends Thread {
         telemetry.addData("Please wait", "In function init devices");
         telemetry.update();
 
+        //imu
+        imu = hardwareMap.get(IMU.class, "imu");
         //Wheels
         Motor_FL = hardwareMap.get(DcMotorEx.class, "motor_fl");
         Motor_FR = hardwareMap.get(DcMotorEx.class, "motor_fr");
@@ -92,13 +94,11 @@ public class BBRobot extends Thread {
         Motor_WBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Motor_WBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-//        BNO055IMU.Parameters parametersIMU = new BNO055IMU.Parameters();
-//        parametersIMU.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-//        parametersIMU.calibrationDataFile = "BNO055IMUCalibration.json";
-//        parametersIMU.loggingEnabled = false;
-//
-//        imu = hardwareMap.get(BNO055IMU.class, "imu");
-//        imu.initialize(parametersIMU);
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
+        RevHubOrientationOnRobot.UsbFacingDirection  usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
+        RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
+
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
 
         // Set PID proportional value to start reducing power at about 50 degrees of rotation.
         // P by itself may stall before turn completed so we add a bit of I (integral) which
@@ -109,11 +109,13 @@ public class BBRobot extends Thread {
         // straight line. P value controls how sensitive the correction is.
         pidDrive = new PIDController(.05, 0, 0);
 
-//        angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-//        Log.i(TAG, "Start Orientation First : "+ angles.firstAngle + "Second: " + angles.secondAngle + "Third: " + angles.thirdAngle );
+        angles = imu.getRobotOrientation(AxesReference.INTRINSIC,AxesOrder.ZYX, AngleUnit.DEGREES);
+        //angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        Log.i(TAG, "Start Orientation First : "+ angles.firstAngle + "Second: " + angles.secondAngle + "Third: " + angles.thirdAngle );
 
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("New Status", "Initialized and Angles are %s - %s - %s", angles.firstAngle, angles.secondAngle, angles.thirdAngle);
         telemetry.update();
+        pause(5000);
     }
 
     private void pause(int milliSec) {
@@ -616,8 +618,7 @@ public class BBRobot extends Thread {
 
     private void resetAngle()
     {
-        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
+        lastAngles = imu.getRobotOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         globalAngle = 0;
     }
 
@@ -632,7 +633,7 @@ public class BBRobot extends Thread {
         // returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes
         // 180 degrees. We detect this transition and track the total cumulative angle of rotation.
 
-        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        Orientation angles = imu.getRobotOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
         double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
 
@@ -754,7 +755,7 @@ public class BBRobot extends Thread {
 
     public void armDown (){
         double curr_position = armServo.getPosition();
-        telemetry.addData("Arm Down", "Position %f ", curr_position); //Displays "Status: Initialized"
+        telemetry.addData("Arm Down", "Position %f ", curr_position);
         telemetry.update();
         pause(100);
         curr_position = curr_position + 0.1;
@@ -768,7 +769,7 @@ public class BBRobot extends Thread {
 
     public void armUp (){
         double curr_position = armServo.getPosition();
-        telemetry.addData("Arm Up", "Position %f ", curr_position); //Displays "Status: Initialized"
+        telemetry.addData("Arm Up", "Position %f ", curr_position);
         telemetry.update();
         pause(100);
 
@@ -783,7 +784,7 @@ public class BBRobot extends Thread {
 
     public void clawSlowOpen (){
         double curr_position = clawServo.getPosition();
-        telemetry.addData("ClawOpen", "Position %f ", curr_position); //Displays "Status: Initialized"
+        telemetry.addData("ClawOpen", "Position %f ", curr_position);
         telemetry.update();
         pause(100);
         curr_position = curr_position + 0.1;
@@ -797,7 +798,7 @@ public class BBRobot extends Thread {
 
     public void clawSlowClose (){
         double curr_position = clawServo.getPosition();
-        telemetry.addData("Claw Close", "Position %f ", curr_position); //Displays "Status: Initialized"
+        telemetry.addData("Claw Close", "Position %f ", curr_position);
         telemetry.update();
         pause(100);
 
@@ -837,6 +838,7 @@ public class BBRobot extends Thread {
         pause(100);
         moveForwardToPosition(1,24,5);
         moveRightToPosition(1,23, 5);
+        moveLeftToPosition(1,23, 5);
         moveForwardToPosition(1, 17, 5);
         pixOnBackdrop();
         pause(100);
@@ -845,11 +847,11 @@ public class BBRobot extends Thread {
 
     public void expandSlide () {
         Log.i(TAG, "Slide Expanding");
-        moveDCMotorByDistance(Motor_VSL, Motor_VSR,0.8,6,1);
+        moveSlide(Motor_VSL, Motor_VSR,0.8,6,1);
     }
 
     public void contractSlide () {
-        moveDCMotorByDistance(Motor_VSL, Motor_VSR,0.8,-6,1);
+        moveSlide(Motor_VSL, Motor_VSR,0.8,-6,1);
         Log.i(TAG, "Slide Contracting");
     }
 
@@ -860,17 +862,17 @@ public class BBRobot extends Thread {
     }
 
     public void turnSlide() {
-        turnSlideByDistance(1,4,2);
+        turnSlide(1,4,2);
     }
     public void turnSlideBack() {
-        turnSlideByDistance(1,-4,2);
+        turnSlide(1,-4,2);
     }
     public void clawStop() {
         Motor_WBL.setPower(0.0);
         Motor_WBR.setPower(0.0);
     }
 
-    private void moveDCMotorByDistance(DcMotorEx leftMotor,DcMotorEx rightMotor, double speed, double moveDistance, double timeoutS)
+    private void moveSlide(DcMotorEx leftMotor,DcMotorEx rightMotor, double speed, double moveDistance, double timeoutS)
     {
         // make motor run using encoder
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -920,7 +922,7 @@ public class BBRobot extends Thread {
         pause(100);
     }
 
-    private void turnSlideByDistance(double speed, double moveDistance, double timeoutS)
+    private void turnSlide(double speed, double moveDistance, double timeoutS)
     {
         DcMotorEx leftMotor = Motor_WBL;
         DcMotorEx rightMotor = Motor_WBR;
