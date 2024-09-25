@@ -23,9 +23,9 @@ public class BBRobot extends Thread {
     private ElapsedTime runtime = new ElapsedTime();
 
     double arm_start_position = 0.0;
-    double claw_start_position = 1;
     double arm_end_position = .65;
-    double claw_end_position = 0.5;
+    double claw_end_position = .65;
+    double claw_start_position = .8;
 
     private final int tollerance = 15;
     private static final double TICKS_PER_ROTATION = 537.7; //Gobilda 5203 312 RMP motor specific
@@ -48,7 +48,7 @@ public class BBRobot extends Thread {
     private DcMotorEx Motor_VSR;
     private DcMotorEx Motor_WBL;
     private DcMotorEx Motor_WBR;
-    private Servo armServo, clawServo;
+    private Servo armServo, wristServo, clawServo;
     private IMU imu;
     private Orientation angles;
     private PIDController pidRotate, pidDrive;
@@ -81,7 +81,8 @@ public class BBRobot extends Thread {
         Motor_WBL = hardwareMap.get(DcMotorEx.class, "wb_l");
         Motor_WBR = hardwareMap.get(DcMotorEx.class, "wb_r");
 
-        //clawServo   = hardwareMap.get(Servo.class, "clawServo");
+        clawServo   = hardwareMap.get(Servo.class, "clawServo");
+        wristServo = hardwareMap.get(Servo.class, "wristServo");
         //armServo    = hardwareMap.get(Servo.class, "armServo");
 
         Motor_FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -732,12 +733,12 @@ public class BBRobot extends Thread {
 
     /* Grab the pixel */
     public void pixRelease() {
-        clawServo.setPosition(claw_end_position);
+        clawServo.setPosition(claw_start_position);
     }
 
     /* release the pixel */
     public  void pixGrab(){
-         clawServo.setPosition(claw_start_position);
+         clawServo.setPosition(claw_end_position);
     }
 
     /* stowed away inside, claw facing backwards */
@@ -821,13 +822,13 @@ public class BBRobot extends Thread {
         pause(1000);
     }
 
-    public void pixGrip () {
-        armServo.setPosition(0.2);
-        pause(200);
-        clawServo.setPosition(0.1);
-        pause(100);
-        clawServo.setPosition(0);
-    }
+//    public void pixGrip () {
+//        armServo.setPosition(0.2);
+//        pause(200);
+//        clawServo.setPosition(0.1);
+//        pause(100);
+//        clawServo.setPosition(0);
+//    }
 
     /* just a test routine */
     public void clawTest () {

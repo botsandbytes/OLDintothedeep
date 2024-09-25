@@ -57,11 +57,11 @@ public class TeleopTest extends LinearOpMode {
             }
 
             if (this.gamepad1.a == true) {
-                robot.pixOnBackdrop();
+                robot.pixGrab();
             }
 
             if (this.gamepad1.b == true) {
-                robot.armGatePickUp();
+                robot.pixRelease();
             }
 
             if (this.gamepad1.right_trigger > 0.5) {
