@@ -856,11 +856,11 @@ public class BBRobot extends Thread {
 
     public void expandSlide () {
         Log.i(TAG, "Slide Expanding");
-        moveSlide(Motor_VSL, Motor_VSR,0.8,6,1);
+        moveSlide(Motor_VSL, Motor_VSR,1,.4,3);
     }
 
     public void contractSlide () {
-        moveSlide(Motor_VSL, Motor_VSR,0.8,-6,1);
+        moveSlide(Motor_VSL, Motor_VSR,1,-.2,3);
         Log.i(TAG, "Slide Contracting");
     }
 
@@ -886,8 +886,8 @@ public class BBRobot extends Thread {
         // make motor run using encoder
         //leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor.setDirection(FORWARD);
-        rightMotor.setDirection(REVERSE);
+        leftMotor.setDirection(REVERSE);
+        rightMotor.setDirection(FORWARD);
 
         //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
