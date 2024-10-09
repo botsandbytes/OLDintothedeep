@@ -48,7 +48,7 @@ public class BBRobot extends Thread {
     private DcMotorEx Motor_BL;
     private DcMotorEx Motor_VSL;
     private DcMotorEx Motor_VSR;
-    private DcMotorEx Motor_WBL;
+    //private DcMotorEx Motor_WBL;
     private DcMotorEx Motor_WBR;
     private Servo armServo, wristServo, clawServo;
     private IMU imu;
@@ -80,7 +80,7 @@ public class BBRobot extends Thread {
         Motor_BL = hardwareMap.get(DcMotorEx.class, "motor_bl");
         Motor_VSL = hardwareMap.get(DcMotorEx.class, "vs_l");
         Motor_VSR = hardwareMap.get(DcMotorEx.class, "vs_r");
-        Motor_WBL = hardwareMap.get(DcMotorEx.class, "wb_l");
+        //Motor_WBL = hardwareMap.get(DcMotorEx.class, "wb_l");
         Motor_WBR = hardwareMap.get(DcMotorEx.class, "wb_r");
 
         clawServo   = hardwareMap.get(Servo.class, "clawServo");
@@ -94,8 +94,14 @@ public class BBRobot extends Thread {
 
         Motor_VSL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Motor_VSR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Motor_WBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //Motor_WBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Motor_WBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        Motor_VSL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Motor_VSR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        Motor_WBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Motor_WBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
 
         RevHubOrientationOnRobot.LogoFacingDirection logoDirection = RevHubOrientationOnRobot.LogoFacingDirection.UP;
         RevHubOrientationOnRobot.UsbFacingDirection  usbDirection = RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
@@ -871,20 +877,20 @@ public class BBRobot extends Thread {
         turnSlide(1,-4,2);
     }
     public void clawStop() {
-        Motor_WBL.setPower(0.0);
+        //Motor_WBL.setPower(0.0);
         Motor_WBR.setPower(0.0);
     }
 
     private void moveSlide(DcMotorEx leftMotor,DcMotorEx rightMotor, double speed, double moveDistance, double timeoutS)
     {
         // make motor run using encoder
-        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftMotor.setDirection(FORWARD);
         rightMotor.setDirection(REVERSE);
 
-        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
          // Send telemetry message to indicate the current and new location
         int moveTarget =  (int) (moveDistance * ARM_COUNTS_PER_INCH);
@@ -920,60 +926,60 @@ public class BBRobot extends Thread {
         leftMotor.setPower(0);
         rightMotor.setPower(0);
         // Turn off RUN_TO_POSITION
-        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         pause(100);
     }
 
     private void turnSlide(double speed, double moveDistance, double timeoutS)
     {
-        DcMotorEx leftMotor = Motor_WBL;
+        //DcMotorEx leftMotor = Motor_WBL;
         DcMotorEx rightMotor = Motor_WBR;
 
             // make motor run using encoder
-        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor.setDirection(FORWARD);
+        //leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //leftMotor.setDirection(FORWARD);
         rightMotor.setDirection(FORWARD);
 
-        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Send telemetry message to indicate the current and new location
         int moveTarget =  (int) (moveDistance * ARM_COUNTS_PER_INCH);
-        telemetry.addData("Starting at", "left %7d, right %7d and moving to %7d", leftMotor.getCurrentPosition(), rightMotor.getCurrentPosition(), moveTarget);
+        telemetry.addData("Starting at", " right %7d and moving to %7d", rightMotor.getCurrentPosition(), moveTarget);
         telemetry.update();
-        pause(100);
+        pause(1000);
 
         //move to new target position
-        leftMotor.setTargetPosition(moveTarget);
+        //leftMotor.setTargetPosition(moveTarget);
         rightMotor.setTargetPosition(moveTarget);
 
-        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // reset the timeout time and start motion.
         runtime.reset();
-        leftMotor.setPower(abs(speed));
+        //leftMotor.setPower(abs(speed));
         rightMotor.setPower(abs(speed));
 
         // sleep
-        while ((runtime.seconds() < timeoutS) && leftMotor.isBusy() && rightMotor.isBusy()) {
+        while ((runtime.seconds() < timeoutS) && rightMotor.isBusy()) {
             // Display it for the driver.
-            telemetry.addData("Running to", " %7d, left - %7d, right - %7d", moveTarget, leftMotor.getTargetPosition(), rightMotor.getTargetPosition());
-            telemetry.addData("Currently at", " left %7d and right %7d ",
-                    leftMotor.getCurrentPosition(), rightMotor.getCurrentPosition());
+            telemetry.addData("Running to", " %7d,  right - %7d", moveTarget,  rightMotor.getTargetPosition());
+            telemetry.addData("Currently at", " right %7d ",
+                     rightMotor.getCurrentPosition());
             telemetry.addData("time now is", " at %7f ",
                     runtime.seconds());
             telemetry.update();
-            pause(100);
+            pause(1000);
         }
 
         // Stop all motion;
-        leftMotor.setPower(0);
+        //leftMotor.setPower(0);
         rightMotor.setPower(0);
         // Turn off RUN_TO_POSITION
-        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 }
