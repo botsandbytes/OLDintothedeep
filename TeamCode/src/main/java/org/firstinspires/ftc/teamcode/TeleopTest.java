@@ -34,7 +34,6 @@ public class TeleopTest extends LinearOpMode {
                 robot.turnForTime(robot_power, 10, false, 1);
             }
 
-
             // Moving
             if (this.gamepad1.right_stick_x < 0.5 && this.gamepad1.right_stick_x > -0.5 && this.gamepad1.right_stick_y < 0.5 && this.gamepad1.right_stick_y > -0.5) {
                 robot.turnOff();
@@ -64,23 +63,20 @@ public class TeleopTest extends LinearOpMode {
                 robot.pixRelease();
             }
 
-            if (this.gamepad2.a == true) {
+            if (this.gamepad1.x == true) {
+//                robot.wristUp();
                 robot.wrist_grab();
             }
-
-            if (this.gamepad2.x == true) {
+            if(this.gamepad1.y == true) {
                 robot.wrist_mid();
+//                robot.wristDown();
             }
-            if(this.gamepad2.y == true) {
-                robot.wrist_drop();
-            }
-
 
             if (this.gamepad1.right_trigger > 0.5) {
-                robot.armRdy();
+//                robot.armRdy();
             }
             if (this.gamepad1.left_trigger > 0.5) {
-                robot.armPark();
+//                robot.armPark();
             }
 
             // Use gamepad buttons to move the slide
@@ -93,35 +89,42 @@ public class TeleopTest extends LinearOpMode {
                  robot.stopSlide();
             }
 
-            if (this.gamepad2.x == true) {
-                // robot.pushPlane();
-            }
             if (this.gamepad1.dpad_up == true) {
-//                robot.moveForwardToPosition(robot_power, 18, 3);
                 robot.turnSlideUp();
-                robot.expandSlide();
+//                robot.expandSlide();
             }
             if (this.gamepad1.dpad_down == true) {
-//                robot.moveBackwardToPosition(robot_power, 18, 3);
-                robot.contractSlide();
+//                robot.contractSlide();
                 robot.turnSlideBack();
             }
             if (this.gamepad1.dpad_left == true) {
-//                robot.moveBackwardToPosition(robot_power, 18, 3);
-                robot.turnSlideBackSlow();
-            }
-            if (this.gamepad1.dpad_left == true) {
-//                robot.rotateAntiClock(90, robot_power);
-//                robot.moveLeftToPosition(robot_power, 18, 3);
+                //up
+                robot.turnSlideSlowRealtively(5);
             }
             if (this.gamepad1.dpad_right == true) {
-//                robot.rotateAntiClock(-90, robot_power);
-//                robot.moveRightToPosition(robot_power, 18, 3);
+                //down
+                robot.turnSlideSlowRealtively(-5);
             }
 
             if (this.gamepad1.dpad_up == false && this.gamepad1.dpad_down == false) {
                 robot.turnOff();
             }
+
+            /********** GamePad 2 ****************/
+            // Code functions for gamepad 2
+
+            if (this.gamepad2.a == true) {
+                robot.wrist_grab();
+            }
+
+            if (this.gamepad2.x == true) {
+                robot.wrist_mid();
+            }
+            if(this.gamepad2.y == true) {
+                robot.wrist_drop();
+            }
+
+
         };
     };
 }

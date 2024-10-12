@@ -2,6 +2,8 @@
 
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.FORWARD;
 import static com.qualcomm.robotcore.hardware.DcMotorSimple.Direction.REVERSE;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static java.lang.Math.abs;
 import android.util.Log;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -21,13 +23,11 @@ public class BBRobot extends Thread {
     private HardwareMap hardwareMap;
     private Telemetry telemetry;
     private ElapsedTime runtime = new ElapsedTime();
-
-    double arm_start_position = 0.0;
-    double arm_end_position = .65;
-    double claw_end_position = .65;
-    double claw_start_position = .8;
-    double wrist_end_position = .2;
-    double wrist_start_position = 1;
+    double claw_end_position = 0.65;
+    double claw_start_position = 0.8;
+    double wrist_end_position = 0.8;
+    double wrist_mid_position = 0.4;
+    double wrist_start_position = 0.0;
 
     private final int tollerance = 15;
     private static final double TICKS_PER_ROTATION = 537.7; //Gobilda 5203 312 RMP motor specific
@@ -48,9 +48,9 @@ public class BBRobot extends Thread {
     private DcMotorEx Motor_BL;
     private DcMotorEx Motor_VSL;
     private DcMotorEx Motor_VSR;
-    private DcMotorEx Motor_WBL;
+//    private DcMotorEx Motor_WBL;
     private DcMotorEx Motor_WBR;
-    private Servo armServo, wristServo, clawServo;
+    private Servo wristServo, clawServo;
     private IMU imu;
     private Orientation angles;
     private PIDController pidRotate, pidDrive;
@@ -80,12 +80,11 @@ public class BBRobot extends Thread {
         Motor_BL = hardwareMap.get(DcMotorEx.class, "motor_bl");
         Motor_VSL = hardwareMap.get(DcMotorEx.class, "vs_l");
         Motor_VSR = hardwareMap.get(DcMotorEx.class, "vs_r");
-        Motor_WBL = hardwareMap.get(DcMotorEx.class, "wb_l");
+//        Motor_WBL = hardwareMap.get(DcMotorEx.class, "wb_l");
         Motor_WBR = hardwareMap.get(DcMotorEx.class, "wb_r");
 
         clawServo   = hardwareMap.get(Servo.class, "clawServo");
         wristServo = hardwareMap.get(Servo.class, "wristServo");
-        //armServo    = hardwareMap.get(Servo.class, "armServo");
 
         Motor_FL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Motor_FR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -94,12 +93,12 @@ public class BBRobot extends Thread {
 
         Motor_VSL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Motor_VSR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Motor_WBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        Motor_WBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Motor_WBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         Motor_VSL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Motor_VSR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        Motor_WBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        Motor_WBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Motor_WBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
@@ -743,65 +742,22 @@ public class BBRobot extends Thread {
     public void pixRelease() {
         clawServo.setPosition(claw_end_position);
         pause(200);
-        wristServo.setPosition(0);
+        wristServo.setPosition(wrist_start_position);
     }
 
     /* release the pixel */
     public  void pixGrab(){
          clawServo.setPosition(claw_start_position);
          pause(100);
-         wristServo.setPosition(0.4);
+         wristServo.setPosition(wrist_mid_position);
     }
-
-    /* stowed away inside, claw facing backwards */
-    public void armPark (){
-        armServo.setPosition(.1);
-    }
-
-    /* pointing down */
-    public void armRdy (){
-        armServo.setPosition(1);
-    }
-    public void armGatePickUp(){
-        armServo.setPosition(.83);
-    };
-
-    public void armDown (){
-        double curr_position = armServo.getPosition();
-        telemetry.addData("Arm Down", "Position %f ", curr_position);
-        telemetry.update();
-        pause(100);
-        curr_position = curr_position + 0.1;
-        if(curr_position <= 1) {
-            armServo.setPosition(curr_position);
-            pause(100);
-        } else {
-            armServo.setPosition(1);
-        }
-    }
-
-    public void armUp (){
-        double curr_position = armServo.getPosition();
-        telemetry.addData("Arm Up", "Position %f ", curr_position);
-        telemetry.update();
-        pause(100);
-
-        curr_position = curr_position - 0.1;
-        if(curr_position >= 0.0) {
-            armServo.setPosition(curr_position);
-            pause(100);
-        } else {
-            armServo.setPosition(0.1);
-        }
-    }
-
-    public void wristUp (){
+ public void wristUp (){
         double curr_position = wristServo.getPosition();
         telemetry.addData("wristOpen", "Position %f ", curr_position);
         telemetry.update();
         pause(100);
         curr_position = curr_position + 0.1;
-        if(curr_position >= wrist_end_position) {
+        if(curr_position <= wrist_end_position) {
             wristServo.setPosition(curr_position);
             pause(100);
         } else {
@@ -816,7 +772,7 @@ public class BBRobot extends Thread {
         pause(100);
 
         curr_position = curr_position - 0.1;
-        if(curr_position <= wrist_start_position) {
+        if(curr_position >= wrist_start_position) {
             wristServo.setPosition(curr_position);
             pause(100);
         } else {
@@ -825,46 +781,13 @@ public class BBRobot extends Thread {
     }
 
     public void wrist_grab () {
-        wristServo.setPosition(0.0);
+        wristServo.setPosition(wrist_start_position);
     }
     public void wrist_mid() {
-        wristServo.setPosition(0.4);
+        wristServo.setPosition(wrist_mid_position);
     }
     public void wrist_drop() {
-        wristServo.setPosition(0.8);
-    }
-    public void armOff (){
-        armServo.close();
-    }
-
-    /* claw to face backdrop and release the pixel */
-    public void pixOnBackdrop () {
-        armServo.setPosition(0.6);
-        pause(1000);
-    }
-
-//    public void pixGrip () {
-//        armServo.setPosition(0.2);
-//        pause(200);
-//        clawServo.setPosition(0.1);
-//        pause(100);
-//        clawServo.setPosition(0);
-//    }
-
-    /* just a test routine */
-    public void clawTest () {
-        armRdy();
-        pixGrab();
-        pause(100);
-        armPark();
-        pause(100);
-        moveForwardToPosition(1,24,5);
-        moveRightToPosition(1,23, 5);
-        moveLeftToPosition(1,23, 5);
-        moveForwardToPosition(1, 17, 5);
-        pixOnBackdrop();
-        pause(100);
-        moveBackwardToPosition(1,5, 5);
+        wristServo.setPosition(wrist_end_position);
     }
 
     public void expandSlide () {
@@ -885,17 +808,13 @@ public class BBRobot extends Thread {
 
     public void turnSlideUp() {
 
-        turnSlide(1,70,2);
+        turnSlide(1,70,2, FALSE);
     }
     public void turnSlideBack() {
-        turnSlide(1,10,2);
+        turnSlide(1,10,2, FALSE);
     }
-    public void turnSlideBackSlow() {
-        turnSlide(1,-10,2);
-    }
-    public void clawStop() {
-        Motor_WBL.setPower(0.0);
-        Motor_WBR.setPower(0.0);
+    public void turnSlideSlowRealtively(int distance) {
+        turnSlide(1,distance,2, TRUE);
     }
 
     private void moveSlide(DcMotorEx leftMotor,DcMotorEx rightMotor, double speed, double moveDistance, double timeoutS)
@@ -948,36 +867,44 @@ public class BBRobot extends Thread {
         pause(100);
     }
 
-    private void turnSlide(double speed, double moveDistance, double timeoutS)
+    private void turnSlide(double speed, double moveDistance, double timeoutS, boolean relative_distance)
     {
-        DcMotorEx leftMotor = Motor_WBL;
+//        DcMotorEx leftMotor = Motor_WBL;
         DcMotorEx rightMotor = Motor_WBR;
 
             // make motor run using encoder
         //leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor.setDirection(FORWARD);
+//        leftMotor.setDirection(FORWARD);
         rightMotor.setDirection(REVERSE);
 
-        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        int moveTarget = 0;
+        if(relative_distance) {
+            telemetry.addData("Moving: ", "relavitely");
+            double currPosition = rightMotor.getCurrentPosition();
+            moveTarget = (int) (currPosition + (moveDistance * ARM_COUNTS_PER_INCH));
+        } else {
+            moveTarget =  (int) (moveDistance * ARM_COUNTS_PER_INCH);
+        }
+
         // Send telemetry message to indicate the current and new location
-        int moveTarget =  (int) (moveDistance * ARM_COUNTS_PER_INCH);
+//        int moveTarget =  (int) (moveDistance * ARM_COUNTS_PER_INCH);
         telemetry.addData("Starting at", " right %7d and moving to %7d", rightMotor.getCurrentPosition(), moveTarget);
         telemetry.update();
         pause(1000);
-
         //move to new target position
-        leftMotor.setTargetPosition(moveTarget);
+//        leftMotor.setTargetPosition(moveTarget);
         rightMotor.setTargetPosition(moveTarget);
 
-        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // reset the timeout time and start motion.
         runtime.reset();
-        leftMotor.setPower(abs(speed));
+//        leftMotor.setPower(abs(speed));
         rightMotor.setPower(abs(speed));
 
         // sleep
@@ -993,7 +920,7 @@ public class BBRobot extends Thread {
         }
 
         // Stop all motion;
-        leftMotor.setPower(0);
+//        leftMotor.setPower(0);
         rightMotor.setPower(0);
         // Turn off RUN_TO_POSITION
         //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
