@@ -48,7 +48,7 @@ public class BBRobot extends Thread {
     private DcMotorEx Motor_BL;
     private DcMotorEx Motor_VSL;
     private DcMotorEx Motor_VSR;
-    //private DcMotorEx Motor_WBL;
+    private DcMotorEx Motor_WBL;
     private DcMotorEx Motor_WBR;
     private Servo armServo, wristServo, clawServo;
     private IMU imu;
@@ -80,7 +80,7 @@ public class BBRobot extends Thread {
         Motor_BL = hardwareMap.get(DcMotorEx.class, "motor_bl");
         Motor_VSL = hardwareMap.get(DcMotorEx.class, "vs_l");
         Motor_VSR = hardwareMap.get(DcMotorEx.class, "vs_r");
-        //Motor_WBL = hardwareMap.get(DcMotorEx.class, "wb_l");
+        Motor_WBL = hardwareMap.get(DcMotorEx.class, "wb_l");
         Motor_WBR = hardwareMap.get(DcMotorEx.class, "wb_r");
 
         clawServo   = hardwareMap.get(Servo.class, "clawServo");
@@ -94,12 +94,12 @@ public class BBRobot extends Thread {
 
         Motor_VSL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Motor_VSR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //Motor_WBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Motor_WBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Motor_WBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         Motor_VSL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Motor_VSR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        Motor_WBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Motor_WBL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         Motor_WBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
@@ -741,12 +741,16 @@ public class BBRobot extends Thread {
 
     /* Grab the pixel */
     public void pixRelease() {
-        clawServo.setPosition(claw_start_position);
+        clawServo.setPosition(claw_end_position);
+        pause(200);
+        wristServo.setPosition(0);
     }
 
     /* release the pixel */
     public  void pixGrab(){
-         clawServo.setPosition(claw_end_position);
+         clawServo.setPosition(claw_start_position);
+         pause(100);
+         wristServo.setPosition(0.4);
     }
 
     /* stowed away inside, claw facing backwards */
@@ -820,6 +824,15 @@ public class BBRobot extends Thread {
         }
     }
 
+    public void wrist_grab () {
+        wristServo.setPosition(0.0);
+    }
+    public void wrist_mid() {
+        wristServo.setPosition(0.4);
+    }
+    public void wrist_drop() {
+        wristServo.setPosition(0.8);
+    }
     public void armOff (){
         armServo.close();
     }
@@ -856,11 +869,11 @@ public class BBRobot extends Thread {
 
     public void expandSlide () {
         Log.i(TAG, "Slide Expanding");
-        moveSlide(Motor_VSL, Motor_VSR,1,.4,3);
+        moveSlide(Motor_VSL, Motor_VSR,1,70,3);
     }
 
     public void contractSlide () {
-        moveSlide(Motor_VSL, Motor_VSR,1,-.2,3);
+        moveSlide(Motor_VSL, Motor_VSR,1,-.70,3);
         Log.i(TAG, "Slide Contracting");
     }
 
@@ -870,14 +883,18 @@ public class BBRobot extends Thread {
 //        Log.i(TAG, "Slide Stopped");
     }
 
-    public void turnSlide() {
-        turnSlide(1,4,2);
+    public void turnSlideUp() {
+
+        turnSlide(1,70,2);
     }
     public void turnSlideBack() {
-        turnSlide(1,-4,2);
+        turnSlide(1,10,2);
+    }
+    public void turnSlideBackSlow() {
+        turnSlide(1,-10,2);
     }
     public void clawStop() {
-        //Motor_WBL.setPower(0.0);
+        Motor_WBL.setPower(0.0);
         Motor_WBR.setPower(0.0);
     }
 
@@ -885,9 +902,9 @@ public class BBRobot extends Thread {
     {
         // make motor run using encoder
         //leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftMotor.setDirection(REVERSE);
-        rightMotor.setDirection(FORWARD);
+        //rightMotor.setMode(DcMotor.RunMode.STOP_AND_RE SET_ENCODER);
+        leftMotor.setDirection(FORWARD);
+        rightMotor.setDirection(REVERSE);
 
         //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -933,16 +950,16 @@ public class BBRobot extends Thread {
 
     private void turnSlide(double speed, double moveDistance, double timeoutS)
     {
-        //DcMotorEx leftMotor = Motor_WBL;
+        DcMotorEx leftMotor = Motor_WBL;
         DcMotorEx rightMotor = Motor_WBR;
 
             // make motor run using encoder
         //leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //leftMotor.setDirection(FORWARD);
-        rightMotor.setDirection(FORWARD);
+        leftMotor.setDirection(FORWARD);
+        rightMotor.setDirection(REVERSE);
 
-        //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // Send telemetry message to indicate the current and new location
@@ -952,15 +969,15 @@ public class BBRobot extends Thread {
         pause(1000);
 
         //move to new target position
-        //leftMotor.setTargetPosition(moveTarget);
+        leftMotor.setTargetPosition(moveTarget);
         rightMotor.setTargetPosition(moveTarget);
 
-        //leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // reset the timeout time and start motion.
         runtime.reset();
-        //leftMotor.setPower(abs(speed));
+        leftMotor.setPower(abs(speed));
         rightMotor.setPower(abs(speed));
 
         // sleep
@@ -976,7 +993,7 @@ public class BBRobot extends Thread {
         }
 
         // Stop all motion;
-        //leftMotor.setPower(0);
+        leftMotor.setPower(0);
         rightMotor.setPower(0);
         // Turn off RUN_TO_POSITION
         //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

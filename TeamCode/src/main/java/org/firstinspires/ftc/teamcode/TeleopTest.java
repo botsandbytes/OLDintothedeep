@@ -64,13 +64,17 @@ public class TeleopTest extends LinearOpMode {
                 robot.pixRelease();
             }
 
-            if (this.gamepad1.x == true) {
-                robot.wristUp();
+            if (this.gamepad2.a == true) {
+                robot.wrist_grab();
             }
 
-            if (this.gamepad1.y == true) {
-                robot.wristDown();
+            if (this.gamepad2.x == true) {
+                robot.wrist_mid();
             }
+            if(this.gamepad2.y == true) {
+                robot.wrist_drop();
+            }
+
 
             if (this.gamepad1.right_trigger > 0.5) {
                 robot.armRdy();
@@ -94,11 +98,17 @@ public class TeleopTest extends LinearOpMode {
             }
             if (this.gamepad1.dpad_up == true) {
 //                robot.moveForwardToPosition(robot_power, 18, 3);
-                robot.turnSlide();
+                robot.turnSlideUp();
+                robot.expandSlide();
             }
             if (this.gamepad1.dpad_down == true) {
 //                robot.moveBackwardToPosition(robot_power, 18, 3);
+                robot.contractSlide();
                 robot.turnSlideBack();
+            }
+            if (this.gamepad1.dpad_left == true) {
+//                robot.moveBackwardToPosition(robot_power, 18, 3);
+                robot.turnSlideBackSlow();
             }
             if (this.gamepad1.dpad_left == true) {
 //                robot.rotateAntiClock(90, robot_power);
