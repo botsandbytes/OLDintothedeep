@@ -796,7 +796,7 @@ public class BBRobot extends Thread {
     }
 
     public void contractSlide () {
-        moveSlide(Motor_VSL, Motor_VSR,1,-.70,3);
+        moveSlide(Motor_VSL, Motor_VSR,1,0,3);
         Log.i(TAG, "Slide Contracting");
     }
 
