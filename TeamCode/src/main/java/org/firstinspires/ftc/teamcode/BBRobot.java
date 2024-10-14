@@ -610,17 +610,17 @@ public class BBRobot extends Thread {
         Motor_BL.setPower((-1) * power); //BL
     }
 
-    public void moveLeft(double power) {
+    public void moveRight(double power) {
         Motor_FL.setPower(power );
-        Motor_FR.setPower(power);
-        Motor_BR.setPower((-1) * power);
+        Motor_FR.setPower((-1) * power);
+        Motor_BR.setPower(power);
         Motor_BL.setPower((-1) *  power);
     }
 
-    public void moveRight(double power) {
+    public void moveLeft(double power) {
         Motor_FL.setPower((-1) * power);
-        Motor_FR.setPower((-1) * power);
-        Motor_BR.setPower(power);
+        Motor_FR.setPower(power);
+        Motor_BR.setPower((-1) * power);
         Motor_BL.setPower(power);
     }
 
@@ -792,11 +792,26 @@ public class BBRobot extends Thread {
 
     public void expandSlide () {
         Log.i(TAG, "Slide Expanding");
-        moveSlide(Motor_VSL, Motor_VSR,1,70,3);
+        moveSlide(Motor_VSL, Motor_VSR,1,60,3);
+    }
+
+    public void expandSlideForLatching() {
+        Log.i(TAG, "Slide Expanding");
+        moveSlide(Motor_VSL, Motor_VSR,1,17,3);
+    }
+
+    public void contractSlideAfterLatching() {
+        Log.i(TAG, "Slide contracting");
+        moveSlide(Motor_VSL, Motor_VSR,1,-17,3);
     }
 
     public void contractSlide () {
         moveSlide(Motor_VSL, Motor_VSR,1,0,3);
+        Log.i(TAG, "Slide Contracting");
+    }
+
+    public void contractSlideNeg () {
+        moveSlide(Motor_VSL, Motor_VSR,1,-30,3);
         Log.i(TAG, "Slide Contracting");
     }
 
@@ -817,7 +832,7 @@ public class BBRobot extends Thread {
         turnSlide(1,distance,2, TRUE);
     }
 
-    private void moveSlide(DcMotorEx leftMotor,DcMotorEx rightMotor, double speed, double moveDistance, double timeoutS)
+    public void moveSlide(DcMotorEx leftMotor,DcMotorEx rightMotor, double speed, double moveDistance, double timeoutS)
     {
         // make motor run using encoder
         //leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -867,7 +882,7 @@ public class BBRobot extends Thread {
         pause(100);
     }
 
-    private void turnSlide(double speed, double moveDistance, double timeoutS, boolean relative_distance)
+    public void turnSlide(double speed, double moveDistance, double timeoutS, boolean relative_distance)
     {
 //        DcMotorEx leftMotor = Motor_WBL;
         DcMotorEx rightMotor = Motor_WBR;

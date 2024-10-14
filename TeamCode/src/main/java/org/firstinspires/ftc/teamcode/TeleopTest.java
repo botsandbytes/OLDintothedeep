@@ -29,13 +29,17 @@ public class TeleopTest extends LinearOpMode {
             switch(currentState) {
                 case MOVING:
                     handleMovement();
-                    if(gamepad1.left_stick_x == 0 || gamepad1.left_stick_y == 0){
+                    if(gamepad1.left_stick_x == 0 && gamepad1.left_stick_y == 0 &&
+                        gamepad1.right_stick_x == 0 && gamepad1.right_stick_y == 0)
+                    {
                         currentState = DriveState.ARM_CONTROL;
                     }
                     break;
                 case ARM_CONTROL:
                     handleControl();
-                    if(gamepad1.left_stick_x > 0 || gamepad1.left_stick_y > 0){
+                    if(gamepad1.left_stick_x != 0 || gamepad1.left_stick_y != 0 ||
+                            gamepad1.right_stick_x != 0 || gamepad1.right_stick_y != 0)
+                    {
                         currentState = DriveState.MOVING;
                     }
                     break;
@@ -123,11 +127,11 @@ public class TeleopTest extends LinearOpMode {
         }
         if (this.gamepad1.dpad_left == true) {
             //up
-            robot.turnSlideSlowRealtively(5);
+            robot.turnSlideSlowRealtively(10);
         }
         if (this.gamepad1.dpad_right == true) {
             //down
-            robot.turnSlideSlowRealtively(-5);
+            robot.turnSlideSlowRealtively(-10);
         }
 
         if (this.gamepad1.dpad_up == false && this.gamepad1.dpad_down == false) {
@@ -146,6 +150,9 @@ public class TeleopTest extends LinearOpMode {
         }
         if(this.gamepad2.y == true) {
             robot.wrist_drop();
+        }
+        if(this.gamepad2.right_bumper == true) {
+            robot.contractSlideNeg();
         }
     };
 }
