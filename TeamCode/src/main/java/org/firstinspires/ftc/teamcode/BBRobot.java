@@ -26,7 +26,7 @@ public class BBRobot extends Thread {
     double claw_end_position = 0.65;
     double claw_start_position = 0.8;
     double wrist_end_position = 0.8;
-    double wrist_mid_position = 0.4;
+    double wrist_mid_position = 0.45;
     double wrist_start_position = 0.0;
 
     private final int tollerance = 15;
@@ -749,7 +749,7 @@ public class BBRobot extends Thread {
     public  void pixGrab(){
          clawServo.setPosition(claw_start_position);
          pause(100);
-         wristServo.setPosition(wrist_mid_position);
+         wristServo.setPosition(wrist_end_position);
     }
  public void wristUp (){
         double curr_position = wristServo.getPosition();
@@ -786,32 +786,53 @@ public class BBRobot extends Thread {
     public void wrist_mid() {
         wristServo.setPosition(wrist_mid_position);
     }
+
+    public void wristSlowRealtively(double distance) {
+        double curr_position = wristServo.getPosition();
+        telemetry.addData("Wrist Current", "Position %f ", curr_position);
+        telemetry.update();
+        pause(100);
+        wristServo.setPosition(curr_position + distance);
+    }
+
     public void wrist_drop() {
         wristServo.setPosition(wrist_end_position);
     }
 
     public void expandSlide () {
         Log.i(TAG, "Slide Expanding");
-        moveSlide(Motor_VSL, Motor_VSR,1,60,3);
+        moveSlide(Motor_VSL, Motor_VSR,1,60,3, FALSE);
     }
 
     public void expandSlideForLatching() {
         Log.i(TAG, "Slide Expanding");
-        moveSlide(Motor_VSL, Motor_VSR,1,17,3);
+        moveSlide(Motor_VSL, Motor_VSR,1,20,2, FALSE);
     }
 
     public void contractSlideAfterLatching() {
         Log.i(TAG, "Slide contracting");
-        moveSlide(Motor_VSL, Motor_VSR,1,-17,3);
+        moveSlide(Motor_VSL, Motor_VSR,1,-12,3, FALSE);
     }
 
+    public void expandSlideSlowRealtively(int distance) {
+        Log.i(TAG, "Slide Expanding");
+        moveSlide(Motor_VSL, Motor_VSR,1,distance,1, TRUE);
+    }
+
+
+    public void contractSlideSlowRealtively(int distance) {
+        Log.i(TAG, "Slide Expanding");
+        moveSlide(Motor_VSL, Motor_VSR,1,-distance,1, TRUE);
+    }
+
+
     public void contractSlide () {
-        moveSlide(Motor_VSL, Motor_VSR,1,0,3);
+        moveSlide(Motor_VSL, Motor_VSR,1,0,3, FALSE);
         Log.i(TAG, "Slide Contracting");
     }
 
     public void contractSlideNeg () {
-        moveSlide(Motor_VSL, Motor_VSR,1,-30,3);
+        moveSlide(Motor_VSL, Motor_VSR,1,-30,3, FALSE);
         Log.i(TAG, "Slide Contracting");
     }
 
@@ -823,16 +844,16 @@ public class BBRobot extends Thread {
 
     public void turnSlideUp() {
 
-        turnSlide(1,70,2, FALSE);
+        turnSlide(1,0,2, FALSE);
     }
     public void turnSlideBack() {
-        turnSlide(1,10,2, FALSE);
+        turnSlide(1,-60,2, FALSE);
     }
     public void turnSlideSlowRealtively(int distance) {
-        turnSlide(1,distance,2, TRUE);
+        turnSlide(1,distance,1, TRUE);
     }
 
-    public void moveSlide(DcMotorEx leftMotor,DcMotorEx rightMotor, double speed, double moveDistance, double timeoutS)
+    public void moveSlide(DcMotorEx leftMotor,DcMotorEx rightMotor, double speed, double moveDistance, double timeoutS, boolean relative_distance)
     {
         // make motor run using encoder
         //leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -842,12 +863,19 @@ public class BBRobot extends Thread {
 
         //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         //rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
+        int moveTarget = 0;
+        if(relative_distance) {
+            telemetry.addData("Moving: ", "relavitely");
+            double currPosition = rightMotor.getCurrentPosition();
+            moveTarget = (int) (currPosition + (moveDistance * ARM_COUNTS_PER_INCH));
+        } else {
+            moveTarget =  (int) (moveDistance * ARM_COUNTS_PER_INCH);
+        }
          // Send telemetry message to indicate the current and new location
-        int moveTarget =  (int) (moveDistance * ARM_COUNTS_PER_INCH);
+//        int moveTarget =  (int) (moveDistance * ARM_COUNTS_PER_INCH);
         telemetry.addData("Starting at", "left %7d, right %7d and moving to %7d", leftMotor.getCurrentPosition(), rightMotor.getCurrentPosition(), moveTarget);
         telemetry.update();
-        pause(1000);
+        pause(100);
 
         //move to new target position
         leftMotor.setTargetPosition(moveTarget);
@@ -909,7 +937,7 @@ public class BBRobot extends Thread {
 //        int moveTarget =  (int) (moveDistance * ARM_COUNTS_PER_INCH);
         telemetry.addData("Starting at", " right %7d and moving to %7d", rightMotor.getCurrentPosition(), moveTarget);
         telemetry.update();
-        pause(1000);
+        pause(100);
         //move to new target position
 //        leftMotor.setTargetPosition(moveTarget);
         rightMotor.setTargetPosition(moveTarget);
@@ -931,7 +959,7 @@ public class BBRobot extends Thread {
             telemetry.addData("time now is", " at %7f ",
                     runtime.seconds());
             telemetry.update();
-            pause(1000);
+            pause(100);
         }
 
         // Stop all motion;
