@@ -154,5 +154,25 @@ public class TeleopTest extends LinearOpMode {
         if(this.gamepad2.right_bumper == true) {
             robot.contractSlideNeg();
         }
+        if (this.gamepad2.dpad_left == true) {
+            //up
+            robot.expandSlideSlowRealtively(5);
+        }
+        if (this.gamepad2.dpad_right == true) {
+            //down
+            robot.contractSlideSlowRealtively(5);
+        }
+
+        if (this.gamepad2.dpad_up == true) {
+            //up
+            robot.wristUp();
+            //robot.wristSlowRealtively(0.10);
+        }
+        if (this.gamepad2.dpad_down == true) {
+            //down
+            robot.wristDown();
+//            robot.wristSlowRealtively(-0.10);
+        }
+
     };
 }
