@@ -123,7 +123,7 @@ public class BBRobot extends Thread {
 
         telemetry.addData("New Status", "Initialized and Angles are %s - %s - %s", angles.firstAngle, angles.secondAngle, angles.thirdAngle);
         telemetry.update();
-        pause(5000);
+        pause(2000);
     }
 
     private void pause(int milliSec) {
@@ -150,9 +150,9 @@ public class BBRobot extends Thread {
     // This function takes input distance in inches and will return Motor ticks needed
     // to travel that distance based on wheel diameter
     private int DistanceToTick(double distance) {
-        double circumference = WHEEL_DIAMETER * 3.14;
+        double circumference = WHEEL_DIAMETER * 3.1415;
         double num_rotation = distance / circumference;
-        int encoder_ticks = (int) (num_rotation * TICKS_PER_ROTATION);
+        int encoder_ticks = (int) (num_rotation * TICKS_PER_ROTATION*.75);
         Log.i(TAG, "Ticks Needed : " + encoder_ticks);
         return (encoder_ticks);
     }
@@ -255,7 +255,7 @@ public class BBRobot extends Thread {
 
     /*****************************************************************************/
     // Move backward to specific distance in inches, with power (0 to 1)
-    public void moveBackwardToPosition(double power, double distance, double timeoutS) {
+    public void moveBackwardToPosition(double power, double distance, double timeoutMS) {
         Log.i(TAG, "Enter Function: moveBackwardToPosition Power : " + power + " and distance : " + distance);
         // Reset all encoders
         runtime.reset();
@@ -286,16 +286,18 @@ public class BBRobot extends Thread {
         Motor_BR.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         Motor_BL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        while ((runtime.seconds() < timeoutS) && Motor_FL.isBusy() && Motor_BL.isBusy() && Motor_FR.isBusy() && Motor_BR.isBusy()) {
+        while ((runtime.milliseconds() < timeoutMS) && Motor_FL.isBusy() && Motor_BL.isBusy() && Motor_FR.isBusy() && Motor_BR.isBusy()) {
             if (DEBUG_DEBUG) {
                 Log.i(TAG, "Actual Ticks Motor0 : " + Motor_FL.getCurrentPosition());
                 Log.i(TAG, "Actual Ticks Motor2 : " + Motor_BR.getCurrentPosition());
                 Log.i(TAG, "Actual Ticks Motor1 : " + Motor_FR.getCurrentPosition());
                 Log.i(TAG, "Actual Ticks Motor3 : " + Motor_BL.getCurrentPosition());
+                Log.i(TAG, "Runtime : " + runtime.milliseconds());
             }
             //Waiting for Robot to travel the distance
             telemetry.addData("Backward", "Moving");
             telemetry.update();
+//            pause(50);
         }
 
 
@@ -634,7 +636,7 @@ public class BBRobot extends Thread {
      * Get current cumulative angle rotation from last reset.
      * @return Angle in degrees. + = left, - = right.
      */
-    private double getAngle()
+    public double getAngle()
     {
         // We experimentally determined the Z axis is the axis we want to use for heading angle.
         // We have to process the angle because the imu works in euler angles so the Z axis is
@@ -731,7 +733,7 @@ public class BBRobot extends Thread {
         //rotation = getAngle();
 
         // wait for rotation to stop.
-        pause(500);
+        pause(100);
 
         // reset angle tracking on new heading.
         resetAngle();
@@ -749,7 +751,7 @@ public class BBRobot extends Thread {
     public  void pixGrab(){
          clawServo.setPosition(claw_start_position);
          pause(100);
-         wristServo.setPosition(wrist_end_position);
+         wristServo.setPosition(0.3);
     }
  public void wristUp (){
         double curr_position = wristServo.getPosition();
@@ -795,6 +797,10 @@ public class BBRobot extends Thread {
         wristServo.setPosition(curr_position + distance);
     }
 
+    public void setWristPosition(double position) {
+        wristServo.setPosition(position);
+    }
+
     public void wrist_drop() {
         wristServo.setPosition(wrist_end_position);
     }
@@ -811,7 +817,7 @@ public class BBRobot extends Thread {
 
     public void contractSlideAfterLatching() {
         Log.i(TAG, "Slide contracting");
-        moveSlide(Motor_VSL, Motor_VSR,1,-12,3, FALSE);
+        moveSlide(Motor_VSL, Motor_VSR,1,-12,2, FALSE);
     }
 
     public void expandSlideSlowRealtively(int distance) {
