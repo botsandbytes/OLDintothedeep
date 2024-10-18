@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 @Autonomous(name="BLUE Basket", group = "Autonomous")
 //@Disabled
 public class TeamAutoBlueBasket extends LinearOpMode {
-    private final double robot_power = 1.0;
+    //private final double robot_power = 1.0;
     BBRobot robot;
 
 //    TeamAutoBlueBasket(){
@@ -33,7 +33,7 @@ public class TeamAutoBlueBasket extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            robot.hangElementOnHighBar(robot, robot_power);
+            robot.hangElementOnHighBar(robot.robot_power);
 //
 //            int turn_deg = (int) robot.getAngle();
 ////            robot.rotateAntiClock(turn_deg, robot_power);
@@ -42,18 +42,18 @@ public class TeamAutoBlueBasket extends LinearOpMode {
 //            robot.turnSlideBack();
 
             // go to first element
-            robot.rotateAntiClock(-90, robot_power);
-            robot.moveForwardToPosition(robot_power, 46, 3000);
-            robot.rotateAntiClock(-90, robot_power);
+            robot.rotateAntiClock(-90, robot.robot_power);
+            robot.moveForwardToPosition(robot.robot_power, 46, 3000);
+            robot.rotateAntiClock(-90, robot.robot_power);
 
             // pick up and drop pixel
             robot.turnSlideBack();
 //            robot.moveForwardToPosition(robot_power, 1, 1);
             robot.pixGrab();
             robot.turnSlideUp();
-            robot.rotateAntiClock(-37, robot_power);
-            robot.moveBackwardToPosition(robot_power, 20, 2400);
-            robot.moveRightToPosition(robot_power, 4, 1500);
+            robot.rotateAntiClock(-37, robot.robot_power);
+            robot.moveBackwardToPosition(robot.robot_power, 20, 2400);
+            robot.moveRightToPosition(robot.robot_power, 4, 1500);
             robot.expandSlide();
             robot.pixRelease();
 

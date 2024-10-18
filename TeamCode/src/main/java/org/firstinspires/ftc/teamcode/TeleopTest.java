@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp
 public class TeleopTest extends LinearOpMode {
-    private final double robot_power = 1.0;
+    //private final double robot_power = 1.0;
     BBRobot robot;
     enum DriveState {
         MOVING,
@@ -54,10 +54,10 @@ public class TeleopTest extends LinearOpMode {
             robot.turnOff();
         }
         if (this.gamepad1.right_stick_x > 0.5) {
-            robot.turnForTime(robot_power, 10, false, -1);
+            robot.turnForTime(robot.robot_power, 10, false, -1);
         }
         if (this.gamepad1.right_stick_x < -0.5) {
-            robot.turnForTime(robot_power, 10, false, 1);
+            robot.turnForTime(robot.robot_power, 10, false, 1);
         }
 
         // Moving
@@ -65,16 +65,16 @@ public class TeleopTest extends LinearOpMode {
             robot.turnOff();
         }
         if (this.gamepad1.left_stick_y > 0.5) {
-            robot.moveForward(robot_power);
+            robot.moveForward(robot.robot_power);
         }
         if (this.gamepad1.left_stick_y < -0.5) {
-            robot.moveBackward(robot_power);
+            robot.moveBackward(robot.robot_power);
         }
         if (this.gamepad1.left_stick_x > 0.5) {
-            robot.moveRight(robot_power);
+            robot.moveRight(robot.robot_power);
         }
         if (this.gamepad1.left_stick_x < -0.5) {
-            robot.moveLeft(robot_power);
+            robot.moveLeft(robot.robot_power);
         }
     }
 
