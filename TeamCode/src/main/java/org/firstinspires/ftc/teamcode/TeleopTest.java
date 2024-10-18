@@ -149,7 +149,7 @@ public class TeleopTest extends LinearOpMode {
             robot.wrist_mid();
         }
         if(this.gamepad2.y == true) {
-            robot.wrist_drop();
+            robot.wrist_end();
         }
         if(this.gamepad2.right_bumper == true) {
             robot.contractSlideNeg();
