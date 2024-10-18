@@ -28,6 +28,7 @@ public class BBRobot extends Thread {
     double wrist_end_position = 0.8;
     double wrist_mid_position = 0.45;
     double wrist_start_position = 0.0;
+    final double robot_power = 1.0;
 
     private final int tollerance = 15;
     private static final double TICKS_PER_ROTATION = 537.7; //Gobilda 5203 312 RMP motor specific
@@ -811,57 +812,57 @@ public class BBRobot extends Thread {
         wristServo.setPosition(position);
     }
 
-    public void hangElementOnHighBar(BBRobot robot, double robot_power){
+    public void hangElementOnHighBar(double robot_power){
         //move towards the center
-        robot.moveBackwardToPosition(robot_power, 33, 2400);
-        robot.expandSlideForLatching();
-        robot.wrist_end();
+        moveBackwardToPosition(robot_power, 33, 2400);
+        expandSlideForLatching();
+        wrist_end();
         //robot.moveBackwardToPosition(robot_power, 2, 500);
         pause(100);
-        robot.moveForwardToPosition(robot_power, 2, 1000);
-        robot.wrist_grab();
+        moveForwardToPosition(robot_power, 2, 1000);
+        wrist_grab();
         pause(100);
-        robot.moveForwardToPosition(robot_power, 5, 1000);
-        robot.pixRelease();
-        robot.contractSlideAfterLatching();
+        moveForwardToPosition(robot_power, 5, 1000);
+        pixRelease();
+        contractSlideAfterLatching();
     }
 
     // expand and contract slide for drop
     public void expandSlide () {
         Log.i(TAG, "Slide Expanding");
-        moveSlide(Motor_VSL, Motor_VSR,1,60,1500, FALSE);
+        moveSlide(Motor_VSL, Motor_VSR,robot_power,60,1500, FALSE);
     }
 
     public void contractSlide () {
-        moveSlide(Motor_VSL, Motor_VSR,1,0,1500, FALSE);
+        moveSlide(Motor_VSL, Motor_VSR,robot_power,0,1500, FALSE);
         Log.i(TAG, "Slide Contracting");
     }
 
     // expand and contract slide for Latching
     public void expandSlideForLatching() {
         Log.i(TAG, "Slide Expanding");
-        moveSlide(Motor_VSL, Motor_VSR,1,20,1500, FALSE);
+        moveSlide(Motor_VSL, Motor_VSR,robot_power,20,1500, FALSE);
     }
 
     public void contractSlideAfterLatching() {
         Log.i(TAG, "Slide contracting");
-        moveSlide(Motor_VSL, Motor_VSR,1,0,1500, FALSE);
+        moveSlide(Motor_VSL, Motor_VSR,robot_power,0,1500, FALSE);
     }
 
     // move slide relatively
     public void expandSlideSlowRealtively(int distance) {
         Log.i(TAG, "Slide Expanding");
-        moveSlide(Motor_VSL, Motor_VSR,1,distance,500, TRUE);
+        moveSlide(Motor_VSL, Motor_VSR,robot_power,distance,500, TRUE);
     }
 
     public void contractSlideSlowRealtively(int distance) {
         Log.i(TAG, "Slide Expanding");
-        moveSlide(Motor_VSL, Motor_VSR,1,-distance,500, TRUE);
+        moveSlide(Motor_VSL, Motor_VSR,robot_power,-distance,500, TRUE);
     }
 
     // contract slide negatively
     public void contractSlideNeg () {
-        moveSlide(Motor_VSL, Motor_VSR,1,-30,1500, FALSE);
+        moveSlide(Motor_VSL, Motor_VSR,robot_power,-30,1500, FALSE);
         Log.i(TAG, "Slide Contracting");
     }
 
@@ -873,13 +874,13 @@ public class BBRobot extends Thread {
 
     public void turnSlideUp() {
 
-        turnSlide(1,0,2000, FALSE);
+        turnSlide(robot_power,0,2000, FALSE);
     }
     public void turnSlideBack() {
-        turnSlide(1,-60,2000, FALSE);
+        turnSlide(robot_power,-60,2000, FALSE);
     }
     public void turnSlideSlowRealtively(int distance) {
-        turnSlide(1,distance,2000, TRUE);
+        turnSlide(robot_power,distance,2000, TRUE);
     }
 
     public void moveSlide(DcMotorEx leftMotor,DcMotorEx rightMotor, double speed, double moveDistance, double timeoutMS, boolean relative_distance)
