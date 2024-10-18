@@ -813,8 +813,6 @@ public class BBRobot extends Thread {
     }
 
     public void hangElementOnHighBar(double robot_power){
-        //move towards the center
-        moveBackwardToPosition(robot_power, 33, 2400);
         expandSlideForLatching();
         wrist_end();
         //robot.moveBackwardToPosition(robot_power, 2, 500);

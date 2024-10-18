@@ -32,7 +32,8 @@ public class TeamAutoBlueBasket extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-
+            //move towards the center
+            robot.moveBackwardToPosition(robot.robot_power, 33, 2400);
             robot.hangElementOnHighBar(robot.robot_power);
 //
 //            int turn_deg = (int) robot.getAngle();
