@@ -346,10 +346,10 @@ public class BBRobot extends Thread {
         int ticks = DistanceToTick(distance);
 
         // Set the target position for all motors (in ticks)
-        Motor_FL.setTargetPosition(ticks);
+        Motor_FL.setTargetPosition((-1) * ticks);
         Motor_FR.setTargetPosition(ticks);
         Motor_BR.setTargetPosition((-1) * ticks);
-        Motor_BL.setTargetPosition((-1) * ticks);
+        Motor_BL.setTargetPosition(ticks);
 
         //Set power of all motors
         Motor_FL.setPower(power);
@@ -420,10 +420,10 @@ public class BBRobot extends Thread {
         int ticks = DistanceToTick(distance);
 
         // Set the target position for all motors (in ticks)
-        Motor_FL.setTargetPosition((-1) * ticks);
+        Motor_FL.setTargetPosition(ticks);
         Motor_FR.setTargetPosition((-1) * ticks);
         Motor_BR.setTargetPosition(ticks);
-        Motor_BL.setTargetPosition(ticks);
+        Motor_BL.setTargetPosition((-1) *ticks);
 
         //Set power of all motors
         Motor_FL.setPower(power);
@@ -816,7 +816,7 @@ public class BBRobot extends Thread {
         expandSlideForLatching();
         wrist_end();
         //robot.moveBackwardToPosition(robot_power, 2, 500);
-        pause(100);
+        pause(300);
         moveForwardToPosition(robot_power, 2, 1000);
         wrist_grab();
         pause(100);
@@ -874,8 +874,14 @@ public class BBRobot extends Thread {
 
         turnSlide(robot_power,0,2000, FALSE);
     }
+
+    public void turnSlideForDrop() {
+
+        turnSlide(robot_power,-10,2000, FALSE);
+    }
+
     public void turnSlideBack() {
-        turnSlide(robot_power,-60,2000, FALSE);
+        turnSlide(robot_power,-70,2000, FALSE);
     }
     public void turnSlideSlowRealtively(int distance) {
         turnSlide(robot_power,distance,2000, TRUE);

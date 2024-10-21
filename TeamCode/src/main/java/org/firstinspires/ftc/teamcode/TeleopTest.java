@@ -93,7 +93,8 @@ public class TeleopTest extends LinearOpMode {
 
         if (this.gamepad1.x == true) {
 //                robot.wristUp();
-            robot.wrist_grab();
+            //robot.wrist_grab();
+            robot.hangElementOnHighBar(robot.robot_power);
         }
         if(this.gamepad1.y == true) {
             robot.wrist_mid();
