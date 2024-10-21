@@ -33,36 +33,39 @@ public class TeamAutoBlueBasket extends LinearOpMode {
 
         while (opModeIsActive()) {
             //move towards the center
-            robot.moveBackwardToPosition(robot.robot_power, 33, 2400);
+            robot.moveBackwardToPosition(robot.robot_power, 30, 2400);
+
+            //hang element on the bard
             robot.hangElementOnHighBar(robot.robot_power);
 //
 //            int turn_deg = (int) robot.getAngle();
 ////            robot.rotateAntiClock(turn_deg, robot_power);
 //            telemetry.addData("Current agnel is", "%5d", turn_deg);
 //            telemetry.update();
-//            robot.turnSlideBack();
 
             // go to first element
             robot.rotateAntiClock(-90, robot.robot_power);
-            robot.moveForwardToPosition(robot.robot_power, 46, 3000);
+            robot.moveForwardToPosition(robot.robot_power, 50, 4500);
             robot.rotateAntiClock(-90, robot.robot_power);
 
-            // pick up and drop pixel
+            // pick up and drop pixel7
             robot.turnSlideBack();
-//            robot.moveForwardToPosition(robot_power, 1, 1);
+            robot.moveForwardToPosition(robot.robot_power, 3, 1);
             robot.pixGrab();
-            robot.turnSlideUp();
-            robot.rotateAntiClock(-37, robot.robot_power);
-            robot.moveBackwardToPosition(robot.robot_power, 20, 2400);
-            robot.moveRightToPosition(robot.robot_power, 4, 1500);
+            robot.turnSlideForDrop();
+            robot.rotateAntiClock(-45, robot.robot_power);
+            robot.moveRightToPosition(robot.robot_power, 14, 1500);
+            robot.moveBackwardToPosition(robot.robot_power, 17,  2400);
             robot.expandSlide();
+            robot.wrist_end();
+            sleep(500);
             robot.pixRelease();
 
-//            sleep(500);
-//            robot.moveBackwardToPosition(robot_power, 2, 1);
-//            robot.pixRelease();
-//            robot.contractSlideAfterLatching();
-//            robot.turnSlide(robot_power, 0, 2, FALSE);
+            sleep(500);
+            robot.contractSlide();
+
+            // reset the slide to original position
+            robot.turnSlideUp();
             break;
         }
     }
