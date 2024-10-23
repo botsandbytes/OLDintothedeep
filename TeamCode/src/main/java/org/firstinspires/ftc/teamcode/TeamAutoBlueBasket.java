@@ -17,7 +17,7 @@ public class TeamAutoBlueBasket extends LinearOpMode {
 //    }
 
     private void initRobotSettings() {
-        robot.pixGrab();
+        robot.elementGrab();
 //        robot.turnSlideUp();
     }
 
@@ -33,7 +33,7 @@ public class TeamAutoBlueBasket extends LinearOpMode {
 
         while (opModeIsActive()) {
             //move towards the center
-            robot.moveBackwardToPosition(robot.robot_power, 30, 2400);
+            robot.moveBackwardToPosition(robot.robot_power, 33, 2400);
 
             //hang element on the bard
             robot.hangElementOnHighBar(robot.robot_power);
@@ -45,24 +45,23 @@ public class TeamAutoBlueBasket extends LinearOpMode {
 
             // go to first element
             robot.rotateAntiClock(-90, robot.robot_power);
-            robot.moveForwardToPosition(robot.robot_power, 50, 4500);
+            robot.moveForwardToPosition(robot.robot_power, 48, 4500);
             robot.rotateAntiClock(-90, robot.robot_power);
 
             // pick up and drop pixel7
             robot.turnSlideBack();
-            robot.moveForwardToPosition(robot.robot_power, 3, 1);
-            robot.pixGrab();
+            robot.moveForwardToPosition(robot.robot_power, 1.5, 500);
+            robot.elementGrab();
             robot.turnSlideForDrop();
-            robot.rotateAntiClock(-45, robot.robot_power);
-            robot.moveRightToPosition(robot.robot_power, 14, 1500);
-            robot.moveBackwardToPosition(robot.robot_power, 17,  2400);
-            robot.expandSlide();
-            robot.wrist_end();
-            sleep(500);
-            robot.pixRelease();
 
-            sleep(500);
-            robot.contractSlide();
+            robot.moveBackwardToPosition(robot.robot_power, 15,  2400);
+            robot.rotateAntiClock(-45, robot.robot_power);
+            robot.expandSlide();
+//            robot.wrist_end();
+//            sleep(100);
+            robot.dropElement();
+//            sleep(100);
+//            robot.contractSlide();
 
             // reset the slide to original position
             robot.turnSlideUp();

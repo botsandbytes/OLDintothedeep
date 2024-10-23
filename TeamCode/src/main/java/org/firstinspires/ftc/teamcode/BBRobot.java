@@ -26,7 +26,7 @@ public class BBRobot extends Thread {
     double claw_end_position = 0.65;
     double claw_start_position = 0.8;
     double wrist_end_position = 0.8;
-    double wrist_mid_position = 0.45;
+    double wrist_mid_position = 0.3;
     double wrist_start_position = 0.0;
     final double robot_power = 1.0;
 
@@ -742,18 +742,23 @@ public class BBRobot extends Thread {
     }
 
     /* Grab the pixel */
-    public void pixRelease() {
+    public void dropElement() {
+        wristServo.setPosition(wrist_end_position);
+        pause(100);
         clawServo.setPosition(claw_end_position);
         pause(200);
-        wristServo.setPosition(wrist_start_position);
+        wristServo.setPosition(wrist_mid_position);
+        pause(100);
+        contractSlide();
+        turnSlideBack();
     }
 
     /* release the pixel */
-    public  void pixGrab(){
-         clawServo.setPosition(claw_start_position);
-         pause(100);
-         setWristPosition(0.3);
-         //wristServo.setPosition(0.3);
+    public  void elementGrab(){
+        clawServo.setPosition(claw_start_position);
+        pause(100);
+        wristServo.setPosition(wrist_mid_position);
+        contractSlide();
     }
 
     public void wristUp (){
@@ -815,14 +820,14 @@ public class BBRobot extends Thread {
     public void hangElementOnHighBar(double robot_power){
         expandSlideForLatching();
         wrist_end();
-        //robot.moveBackwardToPosition(robot_power, 2, 500);
         pause(300);
         moveForwardToPosition(robot_power, 2, 1000);
         wrist_grab();
         pause(100);
         moveForwardToPosition(robot_power, 5, 1000);
-        pixRelease();
+        clawServo.setPosition(claw_end_position);
         contractSlideAfterLatching();
+        wrist_grab();
     }
 
     // expand and contract slide for drop
@@ -839,7 +844,7 @@ public class BBRobot extends Thread {
     // expand and contract slide for Latching
     public void expandSlideForLatching() {
         Log.i(TAG, "Slide Expanding");
-        moveSlide(Motor_VSL, Motor_VSR,robot_power,20,1500, FALSE);
+        moveSlide(Motor_VSL, Motor_VSR,robot_power,18,1500, FALSE);
     }
 
     public void contractSlideAfterLatching() {
@@ -877,11 +882,11 @@ public class BBRobot extends Thread {
 
     public void turnSlideForDrop() {
 
-        turnSlide(robot_power,-10,2000, FALSE);
+        turnSlide(robot_power,0,2000, FALSE);
     }
 
     public void turnSlideBack() {
-        turnSlide(robot_power,-70,2000, FALSE);
+        turnSlide(robot_power,-60,2000, FALSE);
     }
     public void turnSlideSlowRealtively(int distance) {
         turnSlide(robot_power,distance,2000, TRUE);
