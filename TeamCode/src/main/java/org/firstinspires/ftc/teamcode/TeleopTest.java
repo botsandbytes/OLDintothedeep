@@ -12,6 +12,10 @@ public class TeleopTest extends LinearOpMode {
     };
     private DriveState currentState = DriveState.MOVING;
 
+    private void initRobot(){
+        robot.setWristPosition(0.17);
+        robot.turnSlideBack();
+    }
     @Override
     public void runOpMode() {
 
@@ -20,6 +24,7 @@ public class TeleopTest extends LinearOpMode {
 
         telemetry.addData("Status", "Initialized"); //Displays "Status: Initialized"
         telemetry.update();
+        initRobot();
         //Driver must press INIT and then ▶️
         waitForStart();
 
@@ -92,6 +97,7 @@ public class TeleopTest extends LinearOpMode {
         }
 
         if (this.gamepad1.x == true) {
+            robot.setWristPosition(0.075);
             //robot.wrist_grab();
         }
         if(this.gamepad1.y == true) {
@@ -157,7 +163,7 @@ public class TeleopTest extends LinearOpMode {
         }
 
         if (this.gamepad2.right_trigger > 0.5) {
-            robot.turnSlide(robot.robot_power,60, 1500, false );
+            robot.turnSlide(robot.robot_power,65, 1500, false );
         }
     };
 }

@@ -23,7 +23,7 @@ public class BBRobot extends Thread {
     private HardwareMap hardwareMap;
     private Telemetry telemetry;
     private ElapsedTime runtime = new ElapsedTime();
-    double claw_end_position = 0.65;
+    double claw_end_position = 0.66;
     double claw_start_position = 0.8;
     double wrist_end_position = 0.8;
     double wrist_mid_position = 0.3;
@@ -747,7 +747,7 @@ public class BBRobot extends Thread {
         pause(100);
         clawServo.setPosition(claw_end_position);
         pause(200);
-        wristServo.setPosition(wrist_mid_position);
+        wristServo.setPosition(.17);
         pause(100);
         contractSlide();
         turnSlideBack();
