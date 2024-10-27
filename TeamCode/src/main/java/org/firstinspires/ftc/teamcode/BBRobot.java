@@ -741,13 +741,20 @@ public class BBRobot extends Thread {
         Log.i(TAG, "Exit Function: rotate");
     }
 
+    public void clawOpen(){
+        clawServo.setPosition(claw_end_position);
+    }
+    public void clawClose(){
+        clawServo.setPosition(claw_start_position);
+    }
+
     /* Grab the pixel */
     public void dropElement() {
         wristServo.setPosition(wrist_end_position);
         pause(100);
         clawServo.setPosition(claw_end_position);
         pause(200);
-        wristServo.setPosition(.17);
+        wristServo.setPosition(.25);
         pause(100);
         contractSlide();
         turnSlideBack();
@@ -824,7 +831,7 @@ public class BBRobot extends Thread {
         moveForwardToPosition(robot_power, 2, 1000);
         wrist_grab();
         pause(100);
-        moveForwardToPosition(robot_power, 5, 1000);
+        moveForwardToPosition(robot_power, 7, 1000);
         clawServo.setPosition(claw_end_position);
         contractSlideAfterLatching();
         wrist_grab();
@@ -833,7 +840,7 @@ public class BBRobot extends Thread {
     // expand and contract slide for drop
     public void expandSlide () {
         Log.i(TAG, "Slide Expanding");
-        moveSlide(Motor_VSL, Motor_VSR,robot_power,60,1500, FALSE);
+        moveSlide(Motor_VSL, Motor_VSR,robot_power,57,1500, FALSE);
     }
 
     public void contractSlide () {
@@ -844,7 +851,7 @@ public class BBRobot extends Thread {
     // expand and contract slide for Latching
     public void expandSlideForLatching() {
         Log.i(TAG, "Slide Expanding");
-        moveSlide(Motor_VSL, Motor_VSR,robot_power,18,1500, FALSE);
+        moveSlide(Motor_VSL, Motor_VSR,robot_power,22,1500, FALSE);
     }
 
     public void contractSlideAfterLatching() {
@@ -875,22 +882,32 @@ public class BBRobot extends Thread {
 //        Log.i(TAG, "Slide Stopped");
     }
 
-    public void turnSlideUp() {
-
+    public void turnSlideReset() {
         turnSlide(robot_power,0,2000, FALSE);
+    }
+
+    public void turnSlideUp() {
+        turnSlide(robot_power,8,2000, FALSE);
     }
 
     public void turnSlideForDrop() {
 
-        turnSlide(robot_power,0,2000, FALSE);
+        turnSlide(robot_power,8,2000, FALSE);
     }
 
     public void turnSlideBack() {
-        turnSlide(robot_power,-60,2000, FALSE);
+        turnSlide(robot_power,-51,2000, FALSE);
+    }
+    public void turnSlideInit() {
+        turnSlide(robot_power,-8,2000, FALSE);
+    }
+    public void resetSlideEncoder(){
+        Motor_WBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
     public void turnSlideSlowRealtively(int distance) {
         turnSlide(robot_power,distance,2000, TRUE);
     }
+
 
     public void moveSlide(DcMotorEx leftMotor,DcMotorEx rightMotor, double speed, double moveDistance, double timeoutMS, boolean relative_distance)
     {
