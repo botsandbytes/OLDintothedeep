@@ -13,7 +13,9 @@ public class TeleopTest extends LinearOpMode {
     private DriveState currentState = DriveState.MOVING;
 
     private void initRobot(){
-        robot.setWristPosition(0.17);
+        robot.setWristPosition(0.25);
+        robot.turnSlideInit();
+        robot.resetSlideEncoder();
         robot.turnSlideBack();
     }
     @Override
@@ -105,6 +107,7 @@ public class TeleopTest extends LinearOpMode {
         }
 
         if (this.gamepad1.right_trigger > 0.5) {
+            robot.moveBackwardToPosition(robot.robot_power,5, 1500);
             robot.hangElementOnHighBar(robot.robot_power);
         }
         if (this.gamepad1.left_trigger > 0.5) {
@@ -113,24 +116,24 @@ public class TeleopTest extends LinearOpMode {
 
         // Use gamepad buttons to move the slide
         // expand (Left Bumper) and contracts (Right Bumper)
-        if (this.gamepad1.left_bumper) {
+        if (this.gamepad2.left_bumper) {
              robot.expandSlide();
-        } else if (this.gamepad1.right_bumper) {
+        } else if (this.gamepad2.right_bumper) {
              robot.contractSlide();
         } else {
              robot.stopSlide();
         }
 
-        if (this.gamepad1.dpad_up == true) {
+        if (this.gamepad2.dpad_up == true) {
             robot.turnSlideForDrop();
         }
-        if (this.gamepad1.dpad_down == true) {
+        if (this.gamepad2.dpad_down == true) {
             robot.turnSlideBack();
         }
-        if (this.gamepad1.dpad_left == true) {
+        if (this.gamepad2.dpad_left == true) {
             robot.contractSlideSlowRealtively(5);
         }
-        if (this.gamepad1.dpad_right == true) {
+        if (this.gamepad2.dpad_right == true) {
             robot.expandSlideSlowRealtively(5);
         }
 
@@ -150,20 +153,22 @@ public class TeleopTest extends LinearOpMode {
         if(this.gamepad2.y == true) {
             robot.wrist_end();
         }
-
-        if (this.gamepad2.dpad_left == true) {
+//
+        if (this.gamepad1.dpad_left == true) {
             robot.turnSlideSlowRealtively(5);
         }
-        if (this.gamepad2.dpad_right == true) {
+        if (this.gamepad1.dpad_right == true) {
             robot.turnSlideSlowRealtively(-5);
         }
-
-        if(this.gamepad2.right_bumper == true) {
-            robot.contractSlideNeg();
-        }
+//
+//        if(this.gamepad2.right_bumper == true) {
+//            robot.contractSlideNeg();
+//        }
 
         if (this.gamepad2.right_trigger > 0.5) {
-            robot.turnSlide(robot.robot_power,65, 1500, false );
+            robot.turnSlide(robot.robot_power,59, 1500, false );
         }
+        if (this.gamepad2.left_trigger > 0.5) {
+            robot.turnSlideReset();      }
     };
 }
