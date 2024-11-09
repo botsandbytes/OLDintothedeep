@@ -16,7 +16,7 @@ public class MaxVelocityTest extends LinearOpMode {
     double minVelocity = 99999.0;
     @Override
     public void runOpMode() {
-        motor = hardwareMap.get(DcMotorEx.class, "motor_fl");
+        motor = hardwareMap.get(DcMotorEx.class, "main");
         initMotor(motor);
         waitForStart();
         while (opModeIsActive()) {
