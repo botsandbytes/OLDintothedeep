@@ -12,12 +12,6 @@ public class TeleopTest extends LinearOpMode {
     };
     private DriveState currentState = DriveState.MOVING;
 
-    private void initRobot(){
-        robot.setWristPosition(0.25);
-        robot.turnSlideInit();
-        robot.resetSlideEncoder();
-        robot.turnSlideBack();
-    }
     @Override
     public void runOpMode() {
 
@@ -26,7 +20,7 @@ public class TeleopTest extends LinearOpMode {
 
         telemetry.addData("Status", "Initialized"); //Displays "Status: Initialized"
         telemetry.update();
-        initRobot();
+
         //Driver must press INIT and then ▶️
         waitForStart();
 
@@ -86,89 +80,112 @@ public class TeleopTest extends LinearOpMode {
     }
 
     private void handleControl() {
-        if (this.gamepad1.dpad_left == false && this.gamepad1.dpad_right == false && this.gamepad1.dpad_up == false && this.gamepad1.dpad_down == false) {
-            robot.turnOff();
+
+        /**** DRIVER 1 *****/
+
+        //pick using active intake
+        if (this.gamepad1.dpad_up == true) {
+            robot.pickIntake();
+        }
+        // align to the platform
+        if (this.gamepad1.dpad_down == true) {
+            robot.wrist_end();
+        }
+        // dopr the wrong element
+        if (this.gamepad1.dpad_left == true) {
+            robot.wrist_mid();
+            robot.dropIntake();
+        }
+        //active intake at driving level
+        if (this.gamepad1.dpad_right == true) {
+            robot.wrist_mid();
         }
 
-        if (this.gamepad1.a == true) {
-            robot.elementGrab();
-        }
-
+        // drop in the bucket
         if (this.gamepad1.b == true) {
             robot.dropElement();
         }
 
-        if (this.gamepad1.x == true) {
-            robot.setWristPosition(0.075);
-            //robot.wrist_grab();
-        }
-        if(this.gamepad1.y == true) {
-            robot.wrist_grab();
-        }
-
+        // hang on bar
         if (this.gamepad1.right_trigger > 0.5) {
             robot.moveBackwardToPosition(robot.robot_power,5, 1500);
             robot.hangElementOnHighBar(robot.robot_power);
         }
-        if (this.gamepad1.left_trigger > 0.5) {
+//        if (this.gamepad1.left_trigger > 0.5) {
 //                robot.armPark();
-        }
-
-        // Use gamepad buttons to move the slide
-        // expand (Left Bumper) and contracts (Right Bumper)
-        if (this.gamepad2.left_bumper) {
-             robot.expandSlide();
-        } else if (this.gamepad2.right_bumper) {
-             robot.contractSlide();
-        } else {
-             robot.stopSlide();
-        }
-
-        if (this.gamepad2.dpad_up == true) {
-            robot.turnSlideForDrop();
-        }
-        if (this.gamepad2.dpad_down == true) {
-            robot.turnSlideBack();
-        }
-        if (this.gamepad2.dpad_left == true) {
-            robot.contractSlideSlowRealtively(5);
-        }
-        if (this.gamepad2.dpad_right == true) {
-            robot.expandSlideSlowRealtively(5);
-        }
+//        }
 
         if (this.gamepad1.dpad_up == false && this.gamepad1.dpad_down == false) {
             robot.turnOff();
         }
 
-        /********** GamePad 2 ****************/
+        /********** DRIVER 2 ****************/
         // Code functions for gamepad 2
 
-        if (this.gamepad2.a == true) {
-            robot.wrist_grab();
+        // Use gamepad buttons to move the slide
+        // expand
+        if (this.gamepad2.dpad_up) {
+            robot.expandSlide();
         }
-        if (this.gamepad2.x == true) {
-            robot.wrist_mid();
+        // contract
+        if (this.gamepad2.dpad_down) {
+            robot.contractSlide();
         }
-        if(this.gamepad2.y == true) {
-            robot.wrist_end();
+        //slow contract
+        if (this.gamepad2.dpad_left == true) {
+            robot.contractSlideSlowRealtively(5);
         }
-//
-        if (this.gamepad1.dpad_left == true) {
-            robot.turnSlideSlowRealtively(5);
+        //slow expand
+        if (this.gamepad2.dpad_right == true) {
+            robot.expandSlideSlowRealtively(5);
         }
-        if (this.gamepad1.dpad_right == true) {
-            robot.turnSlideSlowRealtively(-5);
-        }
-//
-//        if(this.gamepad2.right_bumper == true) {
-//            robot.contractSlideNeg();
-//        }
 
-        if (this.gamepad2.right_trigger > 0.5) {
-            robot.turnSlide(robot.robot_power,59, 1500, false );
-        }
+        // hang on bar
         if (this.gamepad2.left_trigger > 0.5) {
-            robot.turnSlideReset();      }
+            robot.pickElementForBar(robot.robot_power);
+        }
+
+        // transfer pixel from intake to claw
+        if (this.gamepad2.a == true) {
+            robot.elementGrab();
+        }
+
+        if (this.gamepad2.x == true) {
+            robot.clawOpen();
+        }
+        if (this.gamepad2.y == true) {
+            robot.clawClose();
+        }
+        // hang on bar
+        if (this.gamepad2.left_bumper == true) {
+            robot.expandLA();
+        }
+        if (this.gamepad2.right_bumper == true) {
+            robot.contractLA();
+        }
+
+        if (this.gamepad2.left_stick_y > 0.5) {
+            robot.slideForwardIntake();
+        }
+        if (this.gamepad2.left_stick_y < -0.5) {
+            robot.slideBackIntake();
+        }
+        if (this.gamepad2.left_stick_y > 0.5) {
+            robot.slideIntakeReset();
+        }
+
+        if (this.gamepad2.right_stick_y > 0.5) {
+            robot.arm_pick();
+        }
+        if (this.gamepad2.right_stick_y < -0.5) {
+            robot.arm_end();
+        }
+        if (this.gamepad2.right_stick_x > 0.5) {
+            robot.arm_straight();
+        }
+        if (this.gamepad2.right_stick_x < -0.5) {
+            robot.arm_drop();
+        }
+
     };
 }
