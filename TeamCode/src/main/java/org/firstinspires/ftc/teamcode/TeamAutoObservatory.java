@@ -16,7 +16,7 @@ public class TeamAutoObservatory extends LinearOpMode {
 //    }
 
     private void initRobotSettings() {
-        robot.turnSlide(robot.robot_power,0, 1500,false);
+//        robot.turnSlide(robot.robot_power,0, 1500,false);
         robot.wrist_end();
         robot.clawClose();
         // sleep(100);
@@ -52,10 +52,10 @@ public class TeamAutoObservatory extends LinearOpMode {
             robot.rotateAntiClock(90, robot.robot_power);
 
             // pick up and drop pixel7
-            robot.turnSlideBack();
+//            robot.turnSlideBack();
             robot.moveForwardToPosition(robot.robot_power, 1.5, 500);
             robot.elementGrab();
-            robot.turnSlideForDrop();
+//            robot.turnSlideForDrop();
 
             robot.moveBackwardToPosition(robot.robot_power, 15,  1400);
 //            robot.rotateAntiClock(-45, robot.robot_power);

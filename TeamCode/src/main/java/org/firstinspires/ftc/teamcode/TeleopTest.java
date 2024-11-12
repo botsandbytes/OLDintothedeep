@@ -119,6 +119,14 @@ public class TeleopTest extends LinearOpMode {
             robot.turnOff();
         }
 
+        // hang on bar
+        if (this.gamepad1.left_bumper == true) {
+            robot.trayOpen();
+        }
+        if (this.gamepad1.right_bumper == true) {
+            robot.trayClose();
+        }
+
         /********** DRIVER 2 ****************/
         // Code functions for gamepad 2
 
