@@ -16,7 +16,7 @@ public class TeamAutoBasket extends LinearOpMode {
 //    }
 
     private void initRobotSettings() {
-        robot.turnSlide(robot.robot_power,0, 1500,false);
+//        robot.turnSlide(robot.robot_power,0, 1500,false);
         robot.wrist_end();
         robot.clawClose();
     }
@@ -48,10 +48,10 @@ public class TeamAutoBasket extends LinearOpMode {
             robot.moveForwardToPosition(robot.robot_power, 48, 4500);
             robot.rotateAntiClock(-90, robot.robot_power);
             // pick up and drop pixel7
-            robot.turnSlideBack();
+//            robot.turnSlideBack();
             robot.moveForwardToPosition(robot.robot_power, 1.5, 500);
             robot.elementGrab();
-            robot.turnSlideForDrop();
+//            robot.turnSlideForDrop();
 
             robot.moveBackwardToPosition(robot.robot_power, 15,  2400);
             robot.rotateAntiClock(-45, robot.robot_power);
@@ -63,7 +63,7 @@ public class TeamAutoBasket extends LinearOpMode {
 //            robot.contractSlide();
 
             // reset the slide to original position
-            robot.turnSlideUp();
+//            robot.turnSlideUp();
             robot.rotateAntiClock(45, robot.robot_power);
             robot.moveForwardToPosition(robot.robot_power, 52,  4000);
             robot.rotateAntiClock(45, robot.robot_power);

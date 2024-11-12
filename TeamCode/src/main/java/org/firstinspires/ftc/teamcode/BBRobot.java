@@ -803,7 +803,7 @@ public class BBRobot extends Thread {
         trayServo.setPosition(0.3);
     }
     public void trayClose(){
-        trayServo.setPosition(0.0);
+        trayServo.setPosition(0.05);
     }
 
 
@@ -879,7 +879,7 @@ public class BBRobot extends Thread {
         pause(100);
         clawOpen();
         pause(100);
-        arm_pick();
+        arm_end();
         pause(1500);
         expandSlideSlowRealtively(-4);
         pause(500);
@@ -1097,92 +1097,92 @@ public class BBRobot extends Thread {
         pause(100);
     }
 
-    /*** no longer using turn slide
-     *
-
-     public void turnSlideReset() {
-     turnSlide(robot_power,0,2000, FALSE);
-     }
-
-     public void turnSlideUp() {
-     turnSlide(robot_power,8,2000, FALSE);
-     }
-
-     public void turnSlideForDrop() {
-
-     turnSlide(robot_power,8,2000, FALSE);
-     }
-
-     public void turnSlideBack() {
-     turnSlide(robot_power,-51,2000, FALSE);
-     }
-     public void turnSlideInit() {
-     turnSlide(robot_power,-8,2000, FALSE);
-     }
-     public void resetSlideEncoder(){
-     Motor_WBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-     }
-     public void turnSlideSlowRealtively(int distance) {
-     turnSlide(robot_power,distance,2000, TRUE);
-     }
-
-     public void turnSlide(double speed, double moveDistance, double timeoutMS, boolean relative_distance)
-    {
-        //DcMotorEx leftMotor = Motor_WBL;
-        DcMotorEx rightMotor = Motor_WBR;
-
-        // make motor run using encoder
-        //leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //leftMotor.setDirection(FORWARD);
-        rightMotor.setDirection(REVERSE);
-
-        //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        int moveTarget = 0;
-        if(relative_distance) {
-            telemetry.addData("Moving: ", "relavitely");
-            double currPosition = rightMotor.getCurrentPosition();
-            moveTarget = (int) (currPosition + (moveDistance * ARM_COUNTS_PER_INCH));
-        } else {
-            moveTarget =  (int) (moveDistance * ARM_COUNTS_PER_INCH);
-        }
-
-        // Send telemetry message to indicate the current and new location
-        telemetry.addData("Starting at", " right %7d and moving to %7d", rightMotor.getCurrentPosition(), moveTarget);
-        telemetry.update();
-        pause(100);
-        //move to new target position
-        //leftMotor.setTargetPosition(moveTarget);
-        rightMotor.setTargetPosition(moveTarget);
-
-        //leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        // reset the timeout time and start motion.
-        runtime.reset();
-        //leftMotor.setPower(abs(speed));
-        rightMotor.setPower(abs(speed));
-
-        // sleep
-        while ((runtime.milliseconds() < timeoutMS) && rightMotor.isBusy()) {
-            // Display it for the driver.
-            telemetry.addData("Running to", " %7d,  right - %7d", moveTarget,  rightMotor.getTargetPosition());
-            telemetry.addData("Currently at", " right %7d ",
-                     rightMotor.getCurrentPosition());
-            telemetry.addData("time now is", " at %7f ",
-                    runtime.seconds());
-            telemetry.update();
-            pause(100);
-        }
-
-        // Stop all motion;
-        //leftMotor.setPower(0);
-        rightMotor.setPower(0);
-        // Turn off RUN_TO_POSITION
-        //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    }
-     NO more turn slide ***/
+//    /*** no longer using turn slide
+//     *
+//
+//     public void turnSlideReset() {
+//     turnSlide(robot_power,0,2000, FALSE);
+//     }
+//
+//     public void turnSlideUp() {
+//     turnSlide(robot_power,8,2000, FALSE);
+//     }
+//
+//     public void turnSlideForDrop() {
+//
+//     turnSlide(robot_power,8,2000, FALSE);
+//     }
+//
+//     public void turnSlideBack() {
+//     turnSlide(robot_power,-51,2000, FALSE);
+//     }
+//     public void turnSlideInit() {
+//     turnSlide(robot_power,-8,2000, FALSE);
+//     }
+//     public void resetSlideEncoder(){
+//     Motor_WBR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//     }
+//     public void turnSlideSlowRealtively(int distance) {
+//     turnSlide(robot_power,distance,2000, TRUE);
+//     }
+//
+//     public void turnSlide(double speed, double moveDistance, double timeoutMS, boolean relative_distance)
+//    {
+//        //DcMotorEx leftMotor = Motor_WBL;
+//        DcMotorEx rightMotor = Motor_WBR;
+//
+//        // make motor run using encoder
+//        //leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        //rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        //leftMotor.setDirection(FORWARD);
+//        rightMotor.setDirection(REVERSE);
+//
+//        //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//
+//        int moveTarget = 0;
+//        if(relative_distance) {
+//            telemetry.addData("Moving: ", "relavitely");
+//            double currPosition = rightMotor.getCurrentPosition();
+//            moveTarget = (int) (currPosition + (moveDistance * ARM_COUNTS_PER_INCH));
+//        } else {
+//            moveTarget =  (int) (moveDistance * ARM_COUNTS_PER_INCH);
+//        }
+//
+//        // Send telemetry message to indicate the current and new location
+//        telemetry.addData("Starting at", " right %7d and moving to %7d", rightMotor.getCurrentPosition(), moveTarget);
+//        telemetry.update();
+//        pause(100);
+//        //move to new target position
+//        //leftMotor.setTargetPosition(moveTarget);
+//        rightMotor.setTargetPosition(moveTarget);
+//
+//        //leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//
+//        // reset the timeout time and start motion.
+//        runtime.reset();
+//        //leftMotor.setPower(abs(speed));
+//        rightMotor.setPower(abs(speed));
+//
+//        // sleep
+//        while ((runtime.milliseconds() < timeoutMS) && rightMotor.isBusy()) {
+//            // Display it for the driver.
+//            telemetry.addData("Running to", " %7d,  right - %7d", moveTarget,  rightMotor.getTargetPosition());
+//            telemetry.addData("Currently at", " right %7d ",
+//                     rightMotor.getCurrentPosition());
+//            telemetry.addData("time now is", " at %7f ",
+//                    runtime.seconds());
+//            telemetry.update();
+//            pause(100);
+//        }
+//
+//        // Stop all motion;
+//        //leftMotor.setPower(0);
+//        rightMotor.setPower(0);
+//        // Turn off RUN_TO_POSITION
+//        //leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        //rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//    }
+//     NO more turn slide ***/
 }
